@@ -4,13 +4,13 @@
   "private": true,
   "description": "Hands-on Linux, Git and AWS labs in a real terminal - run locally in Docker or hosted",
   "license": "MIT",
-  "homepage": "https://github.com/LondheShubham153/tws-labs#readme",
+  "homepage": "https://github.com/TrainWithShubham/tws-labs#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/LondheShubham153/tws-labs.git"
+    "url": "git+https://github.com/TrainWithShubham/tws-labs.git"
   },
   "bugs": {
-    "url": "https://github.com/LondheShubham153/tws-labs/issues"
+    "url": "https://github.com/TrainWithShubham/tws-labs/issues"
   },
   "main": "src/server.js",
   "scripts": {

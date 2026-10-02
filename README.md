@@ -1,6 +1,6 @@
 # TWS Labs
 
-[![CI](https://github.com/LondheShubham153/tws-labs/actions/workflows/ci.yml/badge.svg)](https://github.com/LondheShubham153/tws-labs/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![CI](https://github.com/TrainWithShubham/tws-labs/actions/workflows/ci.yml/badge.svg)](https://github.com/TrainWithShubham/tws-labs/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 Learn **DevOps**, **Cloud** and **AI** by doing: a real terminal, real files, and tasks graded on the real state of a
 real Linux sandbox. Not a simulator, not a quiz. Run it on your own machine — **Windows, macOS or Linux** — or use the
@@ -24,7 +24,7 @@ TrainWithShubham DevOps roadmap.
 **You need one thing: [Docker](https://www.docker.com/products/docker-desktop/)** (Docker Desktop on Windows and macOS, Docker Engine on Linux). No Node, no accounts. It is the same image the hosted version runs on Elastic Beanstalk, so what you run is what we host.
 
 ```bash
-git clone https://github.com/LondheShubham153/tws-labs
+git clone https://github.com/TrainWithShubham/tws-labs
 cd tws-labs
 ./start_local_labs.sh
 ```

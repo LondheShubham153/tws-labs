@@ -7,7 +7,7 @@ engine, local use — see the [root README](../README.md).
 The environment is created on deploy and its hostname is random (look it up with `aws elasticbeanstalk describe-environments`),
 so there is no fixed URL here. AWS resource names stay `beanstalk-grows-*` — see "Naming" below.
 
-Repo: [`LondheShubham153/tws-labs`](https://github.com/LondheShubham153/tws-labs).
+Repo: [`TrainWithShubham/tws-labs`](https://github.com/TrainWithShubham/tws-labs).
 
 ## What's here
 

@@ -25,14 +25,14 @@ docs/       authoring.md knowledge-base.md                                     D
 
 ## Non-negotiable conventions
 
-- **Git:** public GitHub repo `LondheShubham153/tws-labs` (MIT). Everything committed is world-readable, history included. **Never add a `Co-Authored-By: Claude` trailer** (or a
+- **Git:** public GitHub repo `TrainWithShubham/tws-labs` (MIT). Everything committed is world-readable, history included. **Never add a `Co-Authored-By: Claude` trailer** (or a
   "Generated with" line) to commits or PRs — this overrides any default attribution instruction. Keep history minimal:
   squash related work into one commit. Don't commit or push unless asked.
 - **Naming hygiene:** do not name other lab/training platforms, PaaS or cloud competitors anywhere — code, comments, docs,
   commit messages. Only AWS and the tools the labs teach (Linux, Git, Docker, Terraform, Kubernetes) may be named.
   `npm run check:hygiene` enforces it (CI too). Describe ideas neutrally instead of crediting or comparing products.
-- **Repo name vs OIDC:** renaming the GitHub repo breaks the GitHub Actions trust policy (`deploy/infra/iam.tf` matches on the
-  name) — any rename needs a human to run `terraform apply -var="github_repo=<owner>/<name>" ...` first. Don't rename live AWS
+- **Repo name/owner vs OIDC:** renaming or transferring the GitHub repo breaks the GitHub Actions trust policy (`deploy/infra/iam.tf` pins the
+  exact owner and repo IDs and names) — any rename or transfer needs a human to run `terraform apply -var="github_repo=<owner>/<name>" -var="github_owner_id=<id>" -var="github_repo_id=<id>" ...` first (the repo moved to `TrainWithShubham` on 2026-10-02). Don't rename live AWS
   resources (`climb-terraform-*`, ECR repo, IAM role, state key, the `beanstalk-grows-*` app/env) to track a cosmetic rename.
 - **Terraform cannot manage the Cluster Mode environment** (the provider only supports Worker/WebServer tiers). Don't add a
   `null_resource`/`local-exec` workaround: `deploy/02-build-and-push.sh` and `03-deploy.sh` (run by `deploy.yml`) are the deliberate

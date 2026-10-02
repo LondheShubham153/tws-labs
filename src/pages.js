@@ -10,7 +10,7 @@ function notFoundBody() {
     <p class="lede">That page isn&rsquo;t on the map.</p><p style="margin-top:28px"><a class="btn-primary" href="/">Back to base <span aria-hidden="true">&rarr;</span></a></p></div>`;
 }
 
-const RUN_STEPS = ['git clone https://github.com/LondheShubham153/tws-labs', 'cd tws-labs', './start_local_labs.sh'];
+const RUN_STEPS = ['git clone https://github.com/TrainWithShubham/tws-labs', 'cd tws-labs', './start_local_labs.sh'];
 const OS_TABS = [
   { id: 'windows', label: 'Windows', note: 'Needs <a href="https://www.docker.com/products/docker-desktop/" target="_blank" rel="noopener noreferrer">Docker Desktop</a> (WSL2) and Git for Windows. Run in Git Bash (or any WSL terminal).' },
   { id: 'macos', label: 'macOS', note: 'Needs <a href="https://www.docker.com/products/docker-desktop/" target="_blank" rel="noopener noreferrer">Docker Desktop</a>. Run in Terminal.' },
@@ -135,7 +135,7 @@ function homeBody(catalog, roadmap, cfg) {
     <span class="rk-big">${rocket()}</span>
     <h2>Reach orbit.</h2>
     <a class="btn-primary" href="${startHref}">Launch the first lab <span aria-hidden="true">&rarr;</span></a>
-    <p class="fine">${note}<br/><a href="/roadmap">Roadmap</a> &middot; <a href="/videos">Videos</a> &middot; <a href="https://github.com/LondheShubham153/tws-labs">Source</a></p>
+    <p class="fine">${note}<br/><a href="/roadmap">Roadmap</a> &middot; <a href="/videos">Videos</a> &middot; <a href="https://github.com/TrainWithShubham/tws-labs">Source</a></p>
   </section>
 </main>`;
   return {
