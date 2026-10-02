@@ -211,8 +211,8 @@ t('memory pressure sacrifices learner processes first: every shell (and its chil
   const app = await start();
   const lab = await openLab(app, 'linux-fundamentals', 'files');
   try {
-    assert.match(await lab.run('cat /proc/self/oom_score_adj'), /(^|[\r\n])1000\r?\n/);
-    assert.match(await lab.run('sh -c "cat /proc/self/oom_score_adj"'), /(^|[\r\n])1000\r?\n/, 'inherited by children');
+    assert.match(await lab.run('cat /proc/self/oom_score_adj'), /(^|\D)1000\r?\n/);
+    assert.match(await lab.run('sh -c "cat /proc/self/oom_score_adj"'), /(^|\D)1000\r?\n/, 'inherited by children');
   } finally { lab.ws.close(); app.stop(); }
 });
 
