@@ -37,7 +37,7 @@ jobs:
       # budget, this very OIDC role) - not the Beanstalk Cluster Mode
       # application/environment itself, which the AWS provider doesn't yet
       # support (see infra/README or the project's own docs/knowledge-base.md).
-      - uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v4
       - name: Terraform apply (foundational infra only)
         working-directory: deploy/infra
         run: |
