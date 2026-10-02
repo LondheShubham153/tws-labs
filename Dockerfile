@@ -2,7 +2,7 @@
 # Elastic Beanstalk environment. Build context is the repo root.
 #
 # build stage: node-pty compiles natively; keep the toolchain out of the final image.
-FROM node:22-bookworm-slim AS build
+FROM node:26-bookworm-slim AS build
 RUN apt-get update && apt-get install -y --no-install-recommends python3 make g++ \
  && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
@@ -12,7 +12,7 @@ RUN npm ci --omit=dev --no-audit --no-fund
 # runtime: Debian on purpose - the same GNU coreutils/bash/git a learner meets on a
 # real Ubuntu/Debian server. tini reaps orphaned lab processes (PID 1 duty); gosu
 # drops each learner's shell to its own unprivileged user.
-FROM node:22-bookworm-slim
+FROM node:26-bookworm-slim
 RUN apt-get update && apt-get install -y --no-install-recommends \
       bash coreutils procps git nano vim-tiny tree curl less file ca-certificates tini gosu \
  && rm -rf /var/lib/apt/lists/* \
