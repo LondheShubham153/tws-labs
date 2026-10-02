@@ -50,7 +50,7 @@ jobs:
             -var="github_repo_id=${{ github.repository_id }}" \
             -var="budget_notification_email=${{ vars.BUDGET_NOTIFICATION_EMAIL }}"
 
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v4
       - name: Build and push image
         run: ./02-build-and-push.sh
 
