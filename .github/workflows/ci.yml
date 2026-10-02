@@ -4,6 +4,7 @@ on:
   pull_request:
   push:
     branches: [main]
+  workflow_dispatch:   # lets a maintainer re-run CI by hand
 
 jobs:
   test:
