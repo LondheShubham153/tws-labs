@@ -4,7 +4,8 @@
 
 Learn **DevOps**, **Cloud** and **AI** by doing: a real terminal, real files, and tasks graded on the real state of a
 real Linux sandbox. Not a simulator, not a quiz. Run it on your own machine — **Windows, macOS or Linux** — or use the
-hosted version. Labs are plain YAML and shell scripts, so anyone can contribute one.
+hosted version, which runs on [AWS Elastic Beanstalk](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/Welcome.html).
+Labs are plain YAML and shell scripts, so anyone can contribute one.
 
 The home page is a quiet map of three routes (**DevOps**, **Cloud**, **AI**) with a station for every topic. Topics with labs are
 online; the rest are marked *next* or *later*. The syllabus and every topic's status live in `labs/roadmap.json`, adapted from the
@@ -20,7 +21,7 @@ TrainWithShubham DevOps roadmap.
 
 <p align="center"><img src="docs/screenshots/lab-terminal.png" alt="A TWS Labs lesson beside a live Linux terminal" width="900"></p>
 
-**You need one thing: [Docker](https://www.docker.com/products/docker-desktop/)** (Docker Desktop on Windows and macOS, Docker Engine on Linux). No Node, no accounts.
+**You need one thing: [Docker](https://www.docker.com/products/docker-desktop/)** (Docker Desktop on Windows and macOS, Docker Engine on Linux). No Node, no accounts. It is the same image the hosted version runs on Elastic Beanstalk, so what you run is what we host.
 
 ```bash
 git clone https://github.com/LondheShubham153/tws-labs
