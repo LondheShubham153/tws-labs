@@ -39,15 +39,16 @@ steps:
       (numeric mode `600`).
     hint: "Use: chmod 600 api.key"
 
-  - id: filter-log
+  - id: recent-log
     type: task
-    title: Filter the service log
+    title: Read the latest log lines
     body: |
-      Before launching, check `service.log` to see past issues.
+      Before launching, look at what the service did most recently:
+      the newest entries are at the **end** of `service.log`.
 
-      Use `grep` to find every line containing `ERROR` in `service.log`
-      and save those lines into a new file called `errors.txt`.
-    hint: "Use: grep ERROR service.log > errors.txt"
+      Save the last 3 lines of `service.log` into a new file called
+      `recent.txt`.
+    hint: "Try: tail -n 3 service.log > recent.txt"
 
   - id: start-app
     type: task
@@ -68,7 +69,7 @@ steps:
 
       - Created directories and managed project configuration files
       - Protected private credentials with numeric permissions
-      - Extracted errors from a log file with `grep` and redirection
+      - Pulled the latest lines out of a log with `tail` and redirection
       - Made a script executable and verified it runs cleanly
 
       These are the exact foundational tasks DevOps and cloud engineers

@@ -30,7 +30,7 @@ if [ ! -f config.env ]; then
   echo "Error: config.env missing" >&2
   exit 1
 fi
-echo "ONLINE" > .service_status
+echo "ONLINE $(date +%s)" > .service_status
 echo "Service is running successfully!"
 EOF
 chmod 644 start.sh
