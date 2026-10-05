@@ -1,14 +1,28 @@
 version: 2
+# Grouped and monthly, so updates arrive as a few PRs instead of a stream. Major versions of the
+# Node base image and the AWS Terraform provider are handled by hand (they change what we deploy).
 updates:
   - package-ecosystem: npm
     directory: /
-    schedule: { interval: weekly }
+    schedule: { interval: monthly }
+    groups:
+      npm-minor-and-patch:
+        update-types: [minor, patch]
   - package-ecosystem: github-actions
     directory: /
-    schedule: { interval: weekly }
+    schedule: { interval: monthly }
+    groups:
+      actions:
+        patterns: ["*"]
   - package-ecosystem: docker
     directory: /
-    schedule: { interval: weekly }
+    schedule: { interval: monthly }
+    ignore:
+      - dependency-name: node
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: terraform
     directory: /deploy/infra
-    schedule: { interval: weekly }
+    schedule: { interval: monthly }
+    ignore:
+      - dependency-name: hashicorp/aws
+        update-types: ["version-update:semver-major"]
