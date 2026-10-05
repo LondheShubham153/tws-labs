@@ -92,8 +92,8 @@ async function validateLab(lab, work) {
 
 (async () => {
   if (process.platform !== 'linux') {
-    console.error('lab:validate needs Linux (/proc). Run it in the container:\n  docker compose run --rm labs node scripts/validate-labs.js');
-    process.exit(2);
+    // macOS / Windows: the same proof, run in the project image (see scripts/docker-run.js).
+    process.exit(require('./docker-run').run('scripts/validate-labs.js', args, path.join(__dirname, '..')));
   }
   const catalog = loadCatalog(LABS_DIR);
   let failed = catalog.problems.length;

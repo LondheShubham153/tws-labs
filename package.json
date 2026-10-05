@@ -18,6 +18,8 @@
     "test": "node --test --test-force-exit test/unit/*.test.js test/integration/*.test.js",
     "test:unit": "node --test test/unit/*.test.js",
     "lab:validate": "node scripts/validate-labs.js --strict",
+    "lab:lint": "node scripts/lint-labs.js",
+    "lab:check": "node scripts/lab-check.js",
     "lab:new": "node scripts/new-lab.js",
     "check:hygiene": "node scripts/check-hygiene.js"
   },
