@@ -9,10 +9,19 @@ const { loadRoadmap } = require('../../src/roadmap');
 
 const REPO = path.join(__dirname, '..', '..');
 
-// A throwaway repo root: the real template, one track with one lab, and a small roadmap.
-function fixture() {
+// A throwaway repo root: a minimal template, one track with one lab, and a small roadmap.
+// (The image does not ship templates/, so the tests carry their own; one more test uses the real one where it exists.)
+function fixture({ realTemplate = false } = {}) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'newlab-'));
-  fs.cpSync(path.join(REPO, 'templates'), path.join(root, 'templates'), { recursive: true });
+  const tpl = path.join(root, 'templates', 'lab');
+  if (realTemplate) fs.cpSync(path.join(REPO, 'templates'), path.join(root, 'templates'), { recursive: true });
+  else {
+    fs.mkdirSync(path.join(tpl, 'checks'), { recursive: true });
+    fs.mkdirSync(path.join(tpl, 'solutions'), { recursive: true });
+    fs.writeFileSync(path.join(tpl, 'lab.yaml'), 'title: __TITLE__\nlevel: beginner          # beginner | intermediate | advanced\nminutes: 10\nsummary: s\nsteps:\n  - {id: intro, type: lesson, title: Intro, body: hi}\n  - {id: example, type: task, title: Do it, body: do it, hint: nudge}\n');
+    fs.writeFileSync(path.join(tpl, 'checks', 'example.sh'), '. "$LAB_LIB"\n[ -f hello.txt ] || fail "no hello.txt"\n');
+    fs.writeFileSync(path.join(tpl, 'solutions', 'example.sh'), 'touch hello.txt\n');
+  }
   const lab = path.join(root, 'labs', 'demo-track', 'first');
   fs.mkdirSync(path.join(lab, 'checks'), { recursive: true });
   fs.mkdirSync(path.join(lab, 'solutions'), { recursive: true });
@@ -97,4 +106,10 @@ test('parseArgs reads flags and keeps the title words', () => {
   const o = parseArgs(['t', 'l', '--topic', 'linux', 'My', 'title', '--dry-run', '--minutes', '8']);
   assert.deepEqual([o.positional, o.topic, o.dryRun, o.minutes], [['t', 'l', 'My', 'title'], 'linux', true, '8']);
   assert.throws(() => parseArgs(['--wat']), /unknown option/);
+});
+
+test('the real templates/lab scaffolds into a lab that loads without problems', { skip: !fs.existsSync(path.join(REPO, 'templates')) }, () => {
+  const root = fixture({ realTemplate: true });
+  scaffold({ root, track: 'demo-track', lab: 'fromreal', topic: 'demo' });
+  assert.deepEqual(problemsOf(root), []);
 });
