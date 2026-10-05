@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SecureShip</title>
+<style>
+  :root { --bg:#fff; --fg:#1a1a1a; --mut:#666; --line:#ddd; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#16181c; --fg:#eee; --mut:#999; --line:#333; } }
+  body { font-family: system-ui, sans-serif; background:var(--bg); color:var(--fg); max-width:960px; margin:0 auto; padding:1.5rem; }
+  input[type=url] { width:100%; padding:.7rem; font-size:1rem; border:1px solid var(--line); border-radius:6px; background:var(--bg); color:var(--fg); box-sizing:border-box; }
+  button { margin-top:.8rem; padding:.7rem 1.4rem; font-size:1rem; border:0; border-radius:6px; background:#2563eb; color:#fff; cursor:pointer; }
+  .err { color:#dc2626; } .mut { color:var(--mut); }
+  .chips span { display:inline-block; margin:0 .4rem .4rem 0; padding:.2rem .6rem; border-radius:99px; font-size:.85rem; border:1px solid var(--line); }
+  .tablewrap { overflow-x:auto; } table { border-collapse:collapse; width:100%; font-size:.9rem; }
+  th, td { text-align:left; padding:.5rem; border-bottom:1px solid var(--line); vertical-align:top; }
+  .CRITICAL,.HIGH { color:#dc2626; font-weight:600; } .MEDIUM { color:#d97706; } .LOW,.INFO { color:var(--mut); }
+</style>
+</head>
+<body>
+<h1><a href="/" style="color:inherit;text-decoration:none">SecureShip</a></h1>
+{% block content %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<p class="mut">Paste a public GitHub repo. We check Dockerfiles, secrets and vulnerable dependencies without running your code.</p>
+<form method="post" action="/scan">
+  <input type="url" name="repo_url" placeholder="https://github.com/owner/repo" required>
+  {% if error %}<p class="err">{{ error }}</p>{% endif %}
+  <button type="submit">Scan repo</button>
+</form>
+<p class="mut">A scan can take a minute. The first run is slower while Trivy downloads its database.</p>
+{% endblock %}

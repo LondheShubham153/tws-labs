@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Report for {{ r.repo }}</h2>
+<div class="chips">
+  {% for sev, n in r.counts.items() %}<span class="{{ sev }}">{{ sev }}: {{ n }}</span>{% endfor %}
+</div>
+{% for e in r.errors %}<p class="err">{{ e }}</p>{% endfor %}
+{% if r.total == 0 %}
+  <p>No findings. Nice work.</p>
+{% else %}
+  {% if r.total > r.findings|length %}<p class="mut">Showing the top {{ r.findings|length }} of {{ r.total }} findings.</p>{% endif %}
+  <div class="tablewrap">
+  <table>
+    <tr><th>Severity</th><th>Tool</th><th>Issue</th><th>Where</th><th>Fix</th></tr>
+    {% for f in r.findings %}
+    <tr>
+      <td class="{{ f.severity }}">{{ f.severity }}</td>
+      <td>{{ f.tool }}</td>
+      <td>{{ f.title }}</td>
+      <td>{{ f.location }}</td>
+      <td>{{ f.fix }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  </div>
+{% endif %}
+<p><a href="/">Scan another repo</a></p>
+{% endblock %}
