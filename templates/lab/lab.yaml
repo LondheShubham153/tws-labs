@@ -9,8 +9,13 @@ steps:
     body: |
       Explain the one concept this lab teaches in a few lines. Markdown: **bold**, `code`,
       lists, fenced code blocks and [links](https://example.com).
-  - id: example
+  - id: create-file
     type: task
-    title: Do something
-    body: Tell the learner exactly what to do, e.g. create a file called `hello.txt`.
-    hint: "A nudge, not the answer - shown when the check fails."
+    title: Create a file
+    body: Create a file called `hello.txt` that contains the word `hello`.
+    hint: "A nudge, not the answer - shown when the check fails and prints no message."
+  - id: list-files
+    type: task
+    title: Look around
+    body: List the files in your home directory with the long format.
+    hint: "Try the `ls` command with the `-l` option."

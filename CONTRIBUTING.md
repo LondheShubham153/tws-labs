@@ -1,21 +1,42 @@
 # Contributing a lab
 
-Thanks for helping people learn! A lab is a folder of YAML and shell scripts. You don't need to touch
-the server. The full reference is [docs/authoring.md](docs/authoring.md); this is the short path.
+Thanks for helping people learn! A lab is a folder of YAML and shell scripts, and a lab PR should touch **only `labs/**`**.
+You do not need to touch the server. This is the short path; the full reference is [docs/authoring.md](docs/authoring.md).
+Using an AI assistant? Point it at [docs/ai-authoring.md](docs/ai-authoring.md).
 
-1. **Scaffold:** `node scripts/new-lab.js <track> <lab-id> "Title"` (new track names create a track).
-   Add the lab id to the `labs:` list in `labs/<track>/track.yaml` — that list sets the order.
-2. **Write it** in `labs/<track>/<lab-id>/`: `lab.yaml` (steps), `checks/<step>.sh`,
-   `solutions/<step>.sh`, and optionally `setup.sh`.
-3. **Try it:** `docker compose up`, then edit and refresh — labs are re-read on every page load.
-4. **Validate:** `docker compose run --rm labs node scripts/validate-labs.js --strict [track/lab]`.
-   For every task it checks that the check **fails before** the solution and **passes after**.
-   CI runs the same command; a lab that doesn't pass can't merge.
-5. Open a PR — the template has a checklist.
+You need Node 22+ and Docker (Docker Desktop on Windows and macOS). Run `npm ci` once.
+
+## The path
+
+1. **Pick the topic.** Every lab belongs to a topic on the roadmap (`labs/roadmap.json`), so learners can find it.
+   Run `npm run lab:new` with no arguments to list them. Skim the labs already in the track so you don't repeat a task.
+2. **Scaffold and register it, in one command:**
+   ```bash
+   npm run lab:new -- <track> <lab-id> --topic <topic-id> "Lab title"
+   ```
+   This copies the template, adds the lab to `labs/<track>/track.yaml` and to its roadmap topic. Add `--dry-run` to preview.
+   The template ships two sample tasks (`create-file`, `list-files`): replace them with yours and delete their `checks/` and `solutions/` files.
+3. **Write it** in `labs/<track>/<lab-id>/`: `lab.yaml` (the steps), `checks/<step>.sh` and `solutions/<step>.sh` for every task,
+   and optionally `setup.sh`. [Check recipes](docs/authoring.md#check-recipes) show the common patterns.
+4. **Prove it:**
+   ```bash
+   npm run lab:check -- <track>/<lab-id>
+   ```
+   First the static checks (instant, any OS), then the real proof: for every task the check must **fail before** the solution and
+   **pass after**. On macOS and Windows the proof runs in Docker for you. CI runs the same two steps.
+   Then try it as a learner: `./start_local_labs.sh`, edit, refresh (labs are re-read on every page load).
+5. **Open a PR.** The template has a short checklist. If you had to change anything outside `labs/**`, say why in the PR.
+
+## Definition of done
+
+- `npm run lab:check -- <track>/<lab-id>` passes with no warnings.
+- You played it once in the browser from start to finish.
+- Every task says exactly what to do, has a hint (a nudge, not the answer), and its check grades real state.
+- The lab teaches something the track does not already teach (the linter flags a task that repeats another lab's).
 
 ## Style guide
 
-- **One concept per lab, 5–15 minutes, 3–7 tasks.** Small steps beat clever ones.
+- **One concept per lab, 5–15 minutes, 3–7 tasks** (graded steps; lessons don't count). Small steps beat clever ones.
 - Each task says *exactly* what to do. The `hint` is a nudge, not the answer; the check's failure
   message (first line it prints) should say what's still missing.
 - **Grade state, not keystrokes.** Prefer "the file exists / the branch is merged / mode is 600".

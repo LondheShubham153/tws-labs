@@ -60,6 +60,17 @@ docs/       authoring.md knowledge-base.md                                     D
 - **The roadmap is data:** `labs/roadmap.json` drives the home map, Roadmap, Videos, breadcrumbs and each page's line colour. The catalog is the truth: a `live`
   topic needs labs, every lab must be on the roadmap (`src/roadmap.js` reports mismatches; tests fail on them). Keep the home map to about six topics per line.
 
+## Adding a lab (the systematic path)
+
+A lab PR touches only `labs/**`. Procedure and brief: `docs/ai-authoring.md` (human version: `CONTRIBUTING.md`).
+```
+npm run lab:new -- <track> <lab-id> --topic <topic-id> "Title"   # scaffolds AND registers (track.yaml + roadmap topic); no topic = it lists them
+npm run lab:lint -- <track>/<lab-id> --json                      # static, any OS; fix every finding
+npm run lab:check -- <track>/<lab-id>                            # lint + fail-before/pass-after proof (Docker off Linux)
+```
+Never hand-edit `track.yaml` or `roadmap.json` for a lab, never edit tests to make a lab pass (counts are derived from the catalog), and ask first
+if the topic is not on the roadmap.
+
 ## Content & research conventions
 
 - Verify technical claims against live AWS docs before publishing (the `aws-docs` MCP tools `search_documentation`, `read_documentation`, `recommend`);
