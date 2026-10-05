@@ -77,6 +77,15 @@ test('the repeated-task rule would have caught the grep-into-errors.txt task tha
   assert.equal(normalise(pipes), normalise(copy));
 });
 
+test('flags the scaffold\'s sample tasks when they were not replaced', () => {
+  const dir = labsDir({ sample: {} });
+  const file = path.join(dir, 't', 'sample', 'lab.yaml');
+  fs.writeFileSync(file, fs.readFileSync(file, 'utf8').replace('{id: do, type: task, title: Do,', '{id: create-file, type: task, title: Create a file,'));
+  fs.renameSync(path.join(dir, 't', 'sample', 'checks', 'do.sh'), path.join(dir, 't', 'sample', 'checks', 'create-file.sh'));
+  fs.renameSync(path.join(dir, 't', 'sample', 'solutions', 'do.sh'), path.join(dir, 't', 'sample', 'solutions', 'create-file.sh'));
+  assert.match(msgs(lintLabs({ labsDir: dir }), 'warn').join('\n'), /t\/sample: the template's sample task "create-file" is still here/);
+});
+
 test('catalog and roadmap problems are reported as errors, and the shipped labs are clean', () => {
   const dir = labsDir({ good: {} });
   fs.writeFileSync(path.join(dir, 'roadmap.json'), JSON.stringify({ version: 1, domains: [{ id: 'devops', title: 'DevOps', topics: [] }] }));

@@ -119,14 +119,14 @@ if (require.main === module) {
   try {
     const o = parseArgs(process.argv.slice(2));
     const [track, lab, ...titleParts] = o.positional;
-    if (!track || !lab) throw new Error(usage);
-    if (!o.topic) {
+    // Always show the topics when something is missing: --topic says where learners find the lab.
+    if (!track || !lab || !o.topic) {
       const roadmap = JSON.parse(fs.readFileSync(path.join(root, 'labs', 'roadmap.json'), 'utf8'));
       throw new Error(`${usage}\n\n--topic says where learners find the lab. Topics on the roadmap:\n${topicList(roadmap)}`);
     }
     const r = scaffold({ root, track, lab, topic: o.topic, title: titleParts.join(' '), level: o.level, minutes: o.minutes, dryRun: o.dryRun });
     console.log(`${r.dryRun ? 'would do' : 'done'}:\n${r.actions.map((a) => `  - ${a}`).join('\n')}`);
-    if (!r.dryRun) console.log(`\nnext: edit labs/${track}/${lab}/lab.yaml, checks/ and solutions/, then\n  npm run lab:check -- ${track}/${lab}`);
+    if (!r.dryRun) console.log(`\nnext: edit labs/${track}/${lab}/lab.yaml, then write checks/ and solutions/ for your tasks.\n  The template ships two sample tasks (create-file, list-files): replace them and delete their checks/solutions files.\n  Then run: npm run lab:check -- ${track}/${lab}`);
   } catch (e) {
     console.error(e.message);
     process.exit(1);

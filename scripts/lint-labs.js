@@ -58,6 +58,10 @@ function lintLabs({ labsDir, only } = {}) {
       const id = `${track.id}/${lab.id}`;
       if (only && only !== id) continue;
       lintLab(lab).forEach((w) => add(id, 'warn', `style: ${w}`));
+      // the scaffold's two sample tasks must be replaced, not shipped
+      for (const [sid, sample] of [['create-file', 'Create a file'], ['list-files', 'Look around']]) {
+        if (lab.steps.some((s) => s.id === sid && s.title === sample)) add(id, 'warn', `the template's sample task "${sid}" is still here: replace it with your own task (and delete its checks/solutions files)`);
+      }
       const scripts = [];
       if (fs.existsSync(path.join(lab.dir, 'setup.sh'))) scripts.push({ file: path.join(lab.dir, 'setup.sh'), what: 'setup.sh' });
       for (const step of lab.steps.filter((s) => s.type === 'task')) {
@@ -94,7 +98,8 @@ function main() {
   const only = args.find((a) => !a.startsWith('--'));
   const labsDir = process.env.LABS_DIR || path.join(__dirname, '..', 'labs');
   const findings = lintLabs({ labsDir, only });
-  const hygiene = spawnSync(process.execPath, [path.join(__dirname, 'check-hygiene.js')], { encoding: 'utf8' });
+  // the naming check reads `git ls-files`, so it only runs inside a git checkout
+  const hygiene = fs.existsSync(path.join(__dirname, '..', '.git')) ? spawnSync(process.execPath, [path.join(__dirname, 'check-hygiene.js')], { encoding: 'utf8' }) : { status: 0 };
   if (hygiene.status !== 0) findings.push({ lab: 'hygiene', level: 'error', message: (hygiene.stderr || hygiene.stdout).trim().split('\n').slice(0, 3).join(' ') });
   const errors = findings.filter((f) => f.level === 'error').length;
   const warns = findings.filter((f) => f.level === 'warn').length;
