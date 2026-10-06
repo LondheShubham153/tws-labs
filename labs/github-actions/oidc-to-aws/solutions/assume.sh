@@ -1,0 +1,1 @@
+printf '      - uses: aws-actions/configure-aws-credentials@v4\n        with:\n          role-to-assume: arn:aws:iam::123456789012:role/shop-deploy\n          aws-region: us-east-1\n' >> shop/.github/workflows/deploy.yml

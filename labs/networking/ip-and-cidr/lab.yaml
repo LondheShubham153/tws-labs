@@ -1,0 +1,101 @@
+title: IP addresses and CIDR
+level: beginner
+minutes: 15
+summary: Read a CIDR block, count its addresses, build its mask and spot overlaps.
+resources:
+  - title: "RFC 4632: CIDR"
+    url: https://www.rfc-editor.org/rfc/rfc4632
+    desc: The standard behind the /N notation.
+  - title: "RFC 1918: Private address space"
+    url: https://www.rfc-editor.org/rfc/rfc1918
+    desc: The three IPv4 ranges that are never routed on the public internet.
+  - title: Subnet CIDR blocks in a VPC
+    url: https://docs.aws.amazon.com/vpc/latest/userguide/subnet-sizing.html
+    desc: How AWS sizes subnets and which addresses it reserves in each one.
+steps:
+  - id: what-is-cidr
+    type: lesson
+    title: An address is 32 bits
+    body: |
+      An IPv4 address is **32 bits**, written as four numbers from 0 to 255, like `10.0.5.9`.
+
+      A block of addresses is written `10.0.5.0/24`. The number after the slash is the **prefix**: how many bits are fixed. The remaining bits are free, and they decide how many addresses the block holds.
+
+      - `/24` fixes 24 bits and frees 8, so 2^8 = **256** addresses.
+      - `/22` fixes 22 bits and frees 10, so 2^10 = **1024** addresses.
+
+      `/24` does not mean 24 hosts. Bash can do the powers: `echo $((2**8))`.
+  - id: total
+    type: task
+    title: Count the addresses
+    body: |
+      Your block is in `block.txt`. Look at it with `cat block.txt`.
+
+      Write how many addresses it holds to `total.txt`, as a plain number.
+    hint: "Free bits = 32 minus the prefix. Try: echo $((2**(32-22))) > total.txt, with your own prefix instead of 22."
+    success: Correct. Free bits decide the size - each bit you free doubles the block.
+  - id: reserved
+    type: lesson
+    title: Two addresses are special
+    body: |
+      In a classic subnet the first address is the **network address**: it names the block, so no machine can use it.
+
+      The last address is the **broadcast address**: it means "everyone in this block". No machine can use it either.
+
+      So a block of 256 addresses has **254** usable hosts. In a cloud VPC even more are held back: AWS keeps the first four and the last address of every subnet, so 251 of 256 are yours.
+  - id: usable
+    type: task
+    title: Count the usable hosts
+    body: |
+      Use the same block from `block.txt`.
+
+      Write the number of **usable hosts** (not counting the network and broadcast addresses) to `usable.txt`.
+    hint: "Total addresses minus two. You already have the total in total.txt."
+    success: Correct. Usable hosts are the total minus the network and broadcast addresses.
+  - id: mask
+    type: lesson
+    title: The mask is the prefix in disguise
+    body: |
+      A **netmask** is the prefix written as 32 bits: `/N` is N ones followed by zeros.
+
+      `/24` is `11111111.11111111.11111111.00000000`, which is `255.255.255.0`.
+
+      `/22` is `11111111.11111111.11111100.00000000`, which is `255.255.252.0`. The third number is 252 because its first six bits are ones: 128 + 64 + 32 + 16 + 8 + 4.
+
+      Machines use the mask to ask "is this address in my block?"
+  - id: netmask
+    type: task
+    title: Write the netmask
+    body: |
+      Write the netmask of your block, in the dotted form like `255.255.252.0`, to `mask.txt`.
+    hint: 'Bash can build it: m=$(( (0xFFFFFFFF << (32-N)) & 0xFFFFFFFF )) then print the four bytes with $((m>>24&255)).$((m>>16&255)).$((m>>8&255)).$((m&255)).'
+    success: Correct. The mask is N ones followed by zeros, split into four bytes.
+  - id: private
+    type: lesson
+    title: Private ranges
+    body: |
+      Three blocks are reserved for private networks (**RFC 1918**) and are never routed on the public internet:
+
+      - `10.0.0.0/8` - `10.0.0.0` to `10.255.255.255`
+      - `172.16.0.0/12` - `172.16.0.0` to `172.31.255.255`
+      - `192.168.0.0/16` - `192.168.0.0` to `192.168.255.255`
+
+      Everything else is public. Be careful at the edges: `172.32.1.1` and `192.167.1.1` look private but are not.
+  - id: public
+    type: task
+    title: Find the public address
+    body: |
+      `candidates.txt` has three addresses. Two are private. One is public.
+
+      Write the public one to `public.txt`.
+    hint: "Check each address against the three private ranges. 172.16 to 172.31 is private, 172.15 and 172.32 are not."
+    success: Correct. Only three ranges are private; the lookalikes at their edges are public.
+  - id: overlap
+    type: task
+    title: Do two blocks overlap?
+    body: |
+      `pair.txt` holds two blocks, one per line. Two blocks **overlap** when they share at least one address. Cloud networks refuse overlapping subnets, so this matters.
+
+      Write `yes` or `no` to `overlap.txt`.
+    hint: "Work out each block's first and last address as numbers. They overlap when each one starts before the other ends."
+    success: Correct. Blocks overlap only when their address ranges share at least one address.

@@ -1,0 +1,7 @@
+order: 6
+title: CI/CD with GitHub Actions
+description: Write real workflow files, check them like a runner would, and learn the safe way to deploy to AWS from CI.
+labs:
+  - workflow-anatomy
+  - jobs-matrix-secrets
+  - oidc-to-aws

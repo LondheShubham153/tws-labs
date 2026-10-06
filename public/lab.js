@@ -104,7 +104,7 @@
     $('step-counter').textContent = 'Step ' + (current + 1) + ' of ' + STEPS.length + ' · ' + (s.type === 'task' ? 'task' : 'lesson');
     $('step-title').textContent = s.title;
     $('step-body').innerHTML = s.bodyHtml;          // server-rendered from escaped markdown
-    $('step-hint').textContent = '';
+    setHint('', false);
     var btn = $('action-btn');
     btn.disabled = false;
     btn.style.display = '';
@@ -122,18 +122,21 @@
   $('back-btn').onclick = function () { if (current > 0) { current--; render(); } };
   $('skip-btn').onclick = next;
 
+  // One live region for feedback: amber nudge when a check fails, green confirmation when it passes.
+  function setHint(text, ok) { var h = $('step-hint'); h.textContent = text; h.classList.toggle('is-ok', !!ok); }
+
   function check() {
     var s = STEPS[current];
     var btn = $('action-btn');
-    if (!token) { $('step-hint').textContent = 'The terminal is still starting — try again in a moment.'; return; }
+    if (!token) { setHint('The terminal is still starting — try again in a moment.', false); return; }
     btn.textContent = 'Checking…'; btn.disabled = true;
     fetch('/lab/check', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token: token, stepId: s.id }) })
       .then(function (r) { return r.json(); })
       .then(function (d) {
         btn.disabled = false;
-        if (d.pass) { done[s.id] = true; render(); return; }
+        if (d.pass) { done[s.id] = true; render(); setHint(s.success || 'Correct. Step complete.', true); return; }
         btn.textContent = 'Not yet — try again';
-        $('step-hint').textContent = d.message || s.hint || '';
+        setHint(d.message || s.hint || '', false);
       })
       .catch(function () { btn.disabled = false; btn.textContent = 'Error — retry'; });
   }
@@ -156,7 +159,7 @@
     $('step-counter').textContent = 'Complete';
     $('step-title').style.display = 'none';
     $('step-body').innerHTML = html;
-    $('step-hint').textContent = '';
+    setHint('', false);
     $('action-btn').style.display = 'none';
     $('skip-btn').style.visibility = 'hidden';
     $('back-btn').style.visibility = 'hidden';

@@ -1,0 +1,1 @@
+printf 'services:\n  web:\n    image: node:22-alpine\n    networks:\n      - backend\n  db:\n    image: postgres:17\n    volumes:\n      - dbdata:/var/lib/postgresql/data\n    networks:\n      - backend\nvolumes:\n  dbdata:\nnetworks:\n  backend:\n' > compose.yaml

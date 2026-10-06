@@ -27,6 +27,8 @@
 .step-title { font: 600 1.25rem/1.3 var(--sans); letter-spacing: -.02em; }
 .step-body { color: #cfcedc; line-height: 1.7; } .step-body p { margin: .55em 0; } .step-body ul, .step-body ol { padding-left: 20px; } .step-body strong { color: var(--text); font-weight: 600; }
 .step-hint { color: var(--cloud); min-height: 1.3em; font-size: 14px; }
+.step-hint.is-ok { color: var(--ok); border-left: 1px solid var(--ok); padding-left: 10px; animation: fadein .25s ease-out; }
+@keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
 .step-footer { display: flex; align-items: center; gap: 4px; margin-top: auto; padding-top: 10px; } .spacer { flex: 1; }
 #end-btn { align-self: flex-start; margin-top: 4px; padding: 6px 14px; font-size: 13px; }
 .done-mark { font: 400 1.9rem/1.1 var(--serif); letter-spacing: -.02em; }
@@ -53,7 +55,7 @@
   .lab-shell { grid-template-columns: 1fr; height: auto; } #term { height: 60vh; } .tasks-pane { border-right: 0; border-bottom: 1px solid var(--rule); }
   .stats-box { grid-template-columns: 1fr 1fr; height: auto; }
 }
-@media (prefers-reduced-motion: reduce) { .jline i, .jrocket, .jt { transition: none; } .journey.launch .jrocket { animation: none; opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .step-hint.is-ok { animation: none; } .jline i, .jrocket, .jt { transition: none; } .journey.launch .jrocket { animation: none; opacity: 0; } }
 
 /* Invite code (gated labs, hosted only): a quiet form in the terminal pane */
 .invite { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 10px; max-width: 360px; margin: 0 auto; padding: 24px; }

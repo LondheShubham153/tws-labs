@@ -28,6 +28,7 @@ docs/       authoring.md knowledge-base.md                                     D
 - **Git:** public GitHub repo `TrainWithShubham/tws-labs` (MIT). Everything committed is world-readable, history included. **Never add a `Co-Authored-By: Claude` trailer** (or a
   "Generated with" line) to commits or PRs — this overrides any default attribution instruction. Keep history minimal:
   squash related work into one commit. Don't commit or push unless asked.
+- **Release notes:** every user-visible change (a lab, a feature, an image or setting change) gets a line in `CHANGELOG.md` under `[Unreleased]`; when releasing, rename it to the new version and date and bump `version` in `package.json` (and `package-lock.json`). Anything that needs action from a self-hoster or from `deploy/` goes under **Upgrade notes**. Tag releases `vX.Y.Z` only when asked.
 - **Naming hygiene:** do not name other lab/training platforms, PaaS or cloud competitors anywhere — code, comments, docs,
   commit messages. Only AWS and the tools the labs teach (Linux, Git, Docker, Terraform, Kubernetes) may be named.
   `npm run check:hygiene` enforces it (CI too). Describe ideas neutrally instead of crediting or comparing products.

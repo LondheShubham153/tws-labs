@@ -72,6 +72,7 @@ steps:
     title: Create a branch
     body: Create a branch called `feature` and switch to it.
     hint: "Try: git switch -c feature"     # shown when the check fails and prints no message
+    success: Correct. Branches are cheap.  # optional (<= 100 chars): the green confirmation when the check passes
     local_body: |                          # optional: different wording when run on a learner's own machine
       Same task, but mention the laptop instead of the hosted cluster.
 ```
@@ -104,6 +105,9 @@ line printed to stdout is shown to the learner on failure. Start with `. "$LAB_L
 | `shell_cwd` | The learner's shell's current directory *right now* |
 | `proc_running NAME` | A process called NAME is alive in the learner's shell session |
 | `in_repo DIR args...` | `git -C $LAB_HOME/DIR args...` |
+| `listening PORT` | Something accepts TCP connections on PORT (reads `/proc/net/tcp*`) |
+| `http_code URL [curl args]` | The HTTP status code, `000` if nothing answers within 2 seconds |
+| `yaml_get FILE EXPR` | Load FILE as YAML into `d` and print the JavaScript EXPR (objects as JSON). A bare `on:` loads as key `true`: use `d[true] \|\| d.on` |
 
 Example — "mode must be 600":
 
@@ -114,6 +118,10 @@ Example — "mode must be 600":
 
 Notes: checks have a 5-second limit. History capture ignores arrow-key recall, so state checks are
 more reliable than `ran`. Checks must be read-only: don't change the learner's files.
+
+**Network labs share one loopback.** Every session in a container sees the same `127.0.0.1`, so never hard-code a port.
+Have `setup.sh` write a free per-session port (and any per-session numbers) into the learner's home, tell the learner to use it,
+and read it back in the check. Port 8080 is the lab server. There is no internet, no `ping` and no raw sockets in the sandbox.
 
 ## Solution scripts
 

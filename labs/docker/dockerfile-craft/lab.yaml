@@ -1,0 +1,94 @@
+title: Write a Dockerfile that builds fast
+level: intermediate
+minutes: 15
+summary: "Build a Dockerfile one step at a time: pinned base, cached install, non-root user."
+resources:
+  - title: Dockerfile best practices
+    url: https://docs.docker.com/build/building/best-practices/
+    desc: The official guidance behind every rule in this lab.
+  - title: Build cache
+    url: https://docs.docker.com/build/cache/
+    desc: How layers are cached and why one change rebuilds everything below it.
+  - title: Dockerfile reference
+    url: https://docs.docker.com/reference/dockerfile/
+    desc: Every instruction, including CMD, USER and EXPOSE.
+steps:
+  - id: recipe
+    type: lesson
+    title: A Dockerfile is a recipe
+    body: |
+      A **Dockerfile** is the recipe for an image. Each instruction (`FROM`, `COPY`, `RUN`, ...) adds one
+      **layer**, and Docker caches every layer.
+
+      The rule that matters most: when one layer changes, every layer after it is rebuilt. So put what changes
+      rarely at the top, and what changes often at the bottom.
+
+      In `~/app` there is a small Node app. You will write its Dockerfile one instruction at a time. Docker is
+      not installed in this sandbox, so the checks read your file. You can build it on your own machine after.
+  - id: base
+    type: task
+    title: Start from a pinned base image
+    body: |
+      Create `~/app/Dockerfile`. Its first line is a `FROM` for a Node image with an exact version tag.
+      A tag like `latest` changes under you and breaks repeatable builds.
+    hint: "Try: FROM node:22-alpine"
+    success: Correct. A pinned tag gives you the same base image on every build.
+  - id: workdir
+    type: task
+    title: Choose a working folder
+    body: Add a `WORKDIR` line. Every later instruction runs from that folder, and Docker creates it if it is missing.
+    hint: "Any absolute path works. /app is the convention."
+    success: Correct. Later COPY and RUN steps now work relative to this folder.
+  - id: deps
+    type: task
+    title: Install dependencies first
+    body: |
+      Add two lines: copy only the package files (`package.json` and `package-lock.json`), then run
+      `npm ci` to install. The install layer is then reused until those two files change.
+    hint: "Try: COPY package*.json ./   then   RUN npm ci"
+    success: Correct. The install layer is cached until package.json or the lock file changes.
+  - id: source
+    type: task
+    title: Copy the source code last
+    body: Now copy the rest of the app into the image, after the install.
+    hint: "Try: COPY . ."
+    success: Correct. Editing code now rebuilds only this layer, and the install above stays cached.
+  - id: user
+    type: task
+    title: Stop running as root
+    body: |
+      Containers run as root unless you say otherwise. Add a `USER` line for the unprivileged `node` user
+      that the Node image provides. Put it after the install, which needs root to write to `/app`.
+    hint: "Try: USER node"
+    success: Correct. If the app is compromised, it does not own the container.
+  - id: cmd
+    type: task
+    title: Start the app with CMD
+    body: |
+      Add the `CMD` that starts the app (`node server.js`). Write it as a JSON array, called **exec form**.
+      The array runs `node` directly as PID 1. Plain text would run it through `/bin/sh -c` instead.
+    hint: 'Try: CMD ["node", "server.js"]'
+    success: Correct. In exec form node is PID 1, so it receives the stop signal from `docker stop`.
+  - id: ignore
+    type: task
+    title: Keep junk out of the build
+    body: |
+      Create `~/app/.dockerignore` and list `node_modules` in it, one path per line. Without it, `COPY . .`
+      would copy your local `node_modules` into the image over the one npm just installed.
+    hint: "It works like .gitignore: one pattern per line."
+    success: Correct. Files listed here never reach the build, so builds are smaller and faster.
+  - id: build-it
+    type: lesson
+    title: Build it on your machine
+    body: |
+      Your Dockerfile is complete. On a machine with Docker, copy the `app` folder over and run:
+
+      ```
+      docker build -t sample ./app
+      docker run --rm -p 3000:3000 sample
+      ```
+
+      Edit `server.js` and build again: the install layer is reused. `EXPOSE` only documents a port; `-p` is what
+      publishes it.
+
+      Next lab: look inside an image, and use a multi-stage build and Compose.

@@ -1,0 +1,91 @@
+title: Deploy to AWS with OIDC
+level: intermediate
+minutes: 15
+summary: Replace long-lived AWS keys with short-lived OIDC tokens and a tight trust policy.
+links:
+  - title: OIDC in AWS
+    url: https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services
+resources:
+  - title: Configuring OpenID Connect in Amazon Web Services
+    url: https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services
+    desc: The official steps, including the aud and sub conditions used in this lab.
+  - title: OpenID Connect reference (token claims)
+    url: https://docs.github.com/en/actions/reference/security/oidc
+    desc: Every claim GitHub puts in the token and the shape of the sub value.
+  - title: Create an OIDC identity provider in IAM
+    url: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html
+    desc: The AWS side - registering GitHub as a trusted identity provider.
+steps:
+  - id: no-keys
+    type: lesson
+    title: No long-lived keys
+    body: |
+      A pipeline that deploys to AWS needs credentials. A stored access key never expires, so if it leaks, it works
+      until someone notices.
+
+      **OIDC** removes the key. For each run, GitHub signs a short-lived token that says who is running (the repo
+      and branch). AWS checks it against a **trust policy** and hands back temporary credentials.
+
+      Your project is in `shop/`. It has a `deploy.yml` workflow and an IAM `trust-policy.json` to complete. This lab
+      uses the placeholder account `123456789012` - never put a real account ID in a public repo.
+  - id: permission
+    type: task
+    title: Allow the workflow to request a token
+    body: |
+      GitHub only issues the OIDC token if the workflow asks for it. In `shop/.github/workflows/deploy.yml`, add a
+      top-level `permissions` block with `id-token: write`, and `contents: read` so the checkout still works.
+    hint: "Setting any permission turns every unlisted one off, so list both id-token and contents."
+    success: Correct. The job may now request a signed OIDC token for this run.
+  - id: assume
+    type: task
+    title: Assume the role from the job
+    body: |
+      Add a step after the checkout that uses `aws-actions/configure-aws-credentials` with
+      `role-to-assume` set to a role ARN in account `123456789012`, plus an `aws-region`.
+    hint: "Use with: and two keys under it. A role ARN looks like arn:aws:iam::123456789012:role/NAME."
+    success: Correct. The action swaps the OIDC token for temporary AWS credentials.
+  - id: trust-policy
+    type: lesson
+    title: The trust policy decides who gets in
+    body: |
+      On the AWS side, the role's trust policy says which tokens may assume it. Two claims matter:
+
+      - `aud` (audience): must be `sts.amazonaws.com`.
+      - `sub` (subject): names the repo and branch, like `repo:OWNER/REPO:ref:refs/heads/main`.
+
+      With `StringLike`, a `*` is a wildcard: `repo:acme*/shop*` also trusts `acme-evil/shop-fork`, and anyone can
+      create that. Use **StringEquals** and the exact value, so only your repo's branch can assume the role.
+  - id: attacker
+    type: task
+    title: Break the loose policy
+    body: |
+      `shop/risky-policy.json` trusts this pattern: `repo:acme-corp*/shop*:ref:refs/heads/main`.
+      Write the name of a repo that is not `acme-corp/shop` but still matches, as `owner/repo`, on one line in
+      `shop/attacker.txt`.
+    hint: "The star matches any characters, including none. Anything can follow acme-corp and shop."
+    success: Correct. Wildcards in a trust policy let other people's repos in.
+  - id: aud
+    type: task
+    title: Trust only the right audience
+    body: |
+      In `shop/trust-policy.json`, the `Condition` is empty. Under `StringEquals`, require
+      `token.actions.githubusercontent.com:aud` to be `sts.amazonaws.com`.
+    hint: "Condition holds StringEquals, which holds one key and its expected value."
+    success: Correct. Only tokens issued for AWS STS are accepted.
+  - id: sub
+    type: task
+    title: Trust exactly one repo and branch
+    body: |
+      In the same `StringEquals`, also require `token.actions.githubusercontent.com:sub` to be exactly the `main` branch of
+      the repo `acme-corp/shop`. No wildcards.
+    hint: "The value format is repo:OWNER/REPO:ref:refs/heads/BRANCH."
+    success: Correct. Only acme-corp/shop on main can assume this role.
+  - id: real-world
+    type: lesson
+    title: Do it for real
+    body: |
+      To run this against AWS: create the GitHub identity provider in IAM, create a role with your finished trust
+      policy, and put its ARN in `role-to-assume`.
+
+      GitHub can also put immutable numeric IDs in the subject (`repo:owner@ID/repo@ID:...`), so a renamed or
+      re-created repo cannot inherit trust. This project's own deploy role uses an exact subject like that.

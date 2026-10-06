@@ -64,3 +64,13 @@ test('track video must be an https URL with a title', () => {
   assert.match(loadCatalog(mk('video: {title: V, url: "javascript:alert(1)"}\n')).problems.join(), /https/);
   assert.match(loadCatalog(mk('video: {url: "https://youtu.be/x"}\n')).problems.join(), /video needs/);
 });
+
+test('an optional success message is kept, and a too-long or non-text one is rejected', () => {
+  const files = { 't/track.yaml': TRACK, 't/one/checks/b.sh': 'true', 't/one/solutions/b.sh': 'true' };
+  const ok = loadCatalog(fixture({ ...files, 't/one/lab.yaml': GOOD_LAB.replace('hint: nudge}', 'hint: nudge, success: "Layer reused"}') }));
+  assert.deepEqual(ok.problems, []);
+  assert.equal(ok.tracks[0].labs[0].steps[1].success, 'Layer reused');
+  assert.equal(ok.tracks[0].labs[0].steps[0].success, '');
+  const long = loadCatalog(fixture({ ...files, 't/one/lab.yaml': GOOD_LAB.replace('hint: nudge}', `hint: nudge, success: "${'x'.repeat(101)}"}`) }));
+  assert.match(long.problems.join('\n'), /success must be text/);
+});

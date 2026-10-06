@@ -1,6 +1,6 @@
 {
   "name": "tws-labs",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "description": "Hands-on Linux, Git and AWS labs in a real terminal - run locally in Docker or hosted",
   "license": "MIT",
@@ -21,7 +21,8 @@
     "lab:lint": "node scripts/lint-labs.js",
     "lab:check": "node scripts/lab-check.js",
     "lab:new": "node scripts/new-lab.js",
-    "check:hygiene": "node scripts/check-hygiene.js"
+    "check:hygiene": "node scripts/check-hygiene.js",
+    "readme:stats": "node scripts/readme-stats.js"
   },
   "dependencies": {
     "@xterm/addon-fit": "^0.11.0",

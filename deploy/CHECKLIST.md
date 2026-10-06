@@ -11,11 +11,15 @@ Last full verification: the restructure to one engine + one catalog (see git log
 - [x] Logo, stylesheet, xterm and scripts are served locally; only the hosted profile loads web fonts
 
 ## Lab flow (all labs)
-- [x] 9 labs across 3 tracks validate and follow the house style: every task's check fails before its solution and passes after (`scripts/validate-labs.js --strict`)
+- [x] 18 labs across 6 tracks validate and follow the house style: every task's check fails before its solution and passes after (`scripts/validate-labs.js --strict`)
 - [x] Lesson steps advance on "Got it"; task steps need a passing Check; Skip/Back/progress dots; completion screen with resources
 - [x] `/session/remaining` counts down from the real hard cap; stats strip reads the container's own cgroup
 - [x] Elastic Beanstalk lab: `hostname` needs the command actually run; `mark` is per-session; `scale` passes only while this session runs `yes`; `cleanup` needs it started and killed
 - [x] (live) the same flow through the real ALB + WebSocket — `deploy/smoke-test.py`, 20/20 on the rebuilt environment (2026-10-01)
+
+- [x] A passing Check shows a green "Correct" line (optional per-step `success:` text); a failing one still shows the amber hint (`public/lab.js`, `public/lab.css`)
+- [x] The nine Docker, Networking and GitHub Actions labs: every task failed before and passed after its solution through a real pty in the image (local profile). Not yet run on the hosted profile
+- [ ] (live) the new labs on the hosted Cluster Mode deployment: the runtime image gained `jq`, `dnsutils`, `iproute2`, `netcat-openbsd` and `openssl`, and `node` cannot start under the hosted 256 MiB address-space cap, so these labs use bash and `nc` servers; confirm on the live environment
 
 ## Invite gate (hosted profile)
 - [x] Every hosted lab: 401 without a code or with a wrong one, 200 with any configured code; the local app never asks; no codes configured = closed (`http.test.js`)

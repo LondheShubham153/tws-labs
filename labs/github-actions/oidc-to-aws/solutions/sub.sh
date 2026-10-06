@@ -1,0 +1,1 @@
+jq '.Statement[0].Condition.StringEquals["token.actions.githubusercontent.com:sub"] = "repo:acme-corp/shop:ref:refs/heads/main"' shop/trust-policy.json > shop/tp.tmp && mv shop/tp.tmp shop/trust-policy.json

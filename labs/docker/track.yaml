@@ -1,0 +1,11 @@
+order: 4
+title: Docker
+description: See what a container really is, write a clean Dockerfile, and understand image layers and Compose.
+labs:
+  - containers-are-processes
+  - dockerfile-craft
+  - layers-and-compose
+video:
+  title: Docker In One Shot
+  url: https://youtu.be/9bSbNNH4Nqw
+  note: Watch the full walkthrough, then practice each idea in the labs here.

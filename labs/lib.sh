@@ -30,3 +30,17 @@ proc_running() { ps -s "$LAB_SHELL_PID" -o stat=,comm= 2>/dev/null | awk -v n="$
 
 # in_repo DIR git-args... : run git inside $LAB_HOME/DIR
 in_repo() { local d="$1"; shift; git -C "$LAB_HOME/$d" "$@"; }
+
+# listening PORT : something is accepting TCP connections on PORT (IPv4 or IPv6, any address)
+listening() { local h; h=$(printf '%04X' "$1"); awk -v h=":$h" '$4 == "0A" && $2 ~ h"$" { f = 1 } END { exit !f }' /proc/net/tcp /proc/net/tcp6 2>/dev/null; }
+
+# http_code URL [curl-args...] : print the HTTP status code (000 if nothing answers within 2 seconds)
+http_code() { local u="$1"; shift; curl -s -o /dev/null -m 2 -w '%{http_code}' "$@" "$u" 2>/dev/null; }
+
+# yaml_get FILE EXPR : load FILE as YAML into `d`, print EXPR (JavaScript). Objects print as JSON; nothing prints if FILE is not valid YAML.
+# YAML 1.1 reads a bare `on:` key as boolean true, so the trigger section is  d[true] || d.on
+yaml_get() {
+  node -e 'const y = require(process.argv[1] + "/node_modules/js-yaml"); const d = y.load(require("fs").readFileSync(process.argv[2], "utf8"));
+    const r = new Function("d", "return (" + process.argv[3] + ")")(d); console.log(r !== null && typeof r === "object" ? JSON.stringify(r) : r);' \
+    "${LAB_LIB%/labs/lib.sh}" "$1" "$2" 2>/dev/null
+}

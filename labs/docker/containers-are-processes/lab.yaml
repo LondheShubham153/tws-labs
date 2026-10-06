@@ -1,0 +1,67 @@
+title: Containers are just processes
+level: beginner
+minutes: 10
+summary: See that a container is a Linux process with its own view and limits - no VM inside.
+resources:
+  - title: Docker overview
+    url: https://docs.docker.com/get-started/docker-overview/
+    desc: What Docker does and how containers, images and the daemon fit together.
+  - title: Dockerfile best practices
+    url: https://docs.docker.com/build/building/best-practices/
+    desc: The official checklist you will start applying in the next lab.
+steps:
+  - id: not-a-vm
+    type: lesson
+    title: A container is not a VM
+    body: |
+      A **container** is an ordinary Linux process. The kernel gives it its own view of the system (its own
+      process list, files and network) and a set of limits. There is no second operating system inside.
+
+      This terminal is running inside one right now. Four small commands will prove it.
+
+      There is no Docker daemon in this sandbox, so you will not run `docker` here. The next labs write real
+      Dockerfiles; you can try them on your own machine afterwards.
+  - id: pid
+    type: task
+    title: Find your shell's process ID
+    body: Your shell is a process, and every process has a number. Print yours and save it in a file named `mypid.txt`.
+    hint: "Your shell's own ID is in the variable $$. Try: echo $$ > mypid.txt"
+    success: Correct. Your shell is a plain process with a number, like any other.
+  - id: pid1
+    type: task
+    title: Meet the container's PID 1
+    body: |
+      Run `ps -e` and look at process **1**. On a normal machine it is the whole system's first process.
+      Here it is this container's own first process. Save its name in `pid1.txt`.
+    hint: "The name of process 1 is in /proc/1/comm. Try: cat /proc/1/comm > pid1.txt"
+    success: Correct. The container has its own process list (a PID namespace), so it sees only itself.
+  - id: limits
+    type: task
+    title: Read a limit on your shell
+    body: The kernel can cap what a process may do. `ulimit -u` prints how many processes your shell may start. Save that number in `maxprocs.txt`.
+    hint: "Try: ulimit -u > maxprocs.txt"
+    success: Correct. Limits like this keep one container from starving its neighbours.
+  - id: cgroup
+    type: task
+    title: Find your control group
+    body: |
+      Memory and CPU caps are set through a **cgroup** (control group). The file `/proc/self/cgroup` names the
+      one your shell belongs to. Save its contents in `cgroup.txt`.
+    hint: "Try: cat /proc/self/cgroup > cgroup.txt"
+    success: Correct. Docker sets memory and CPU caps by placing the container's processes in a cgroup.
+  - id: recap
+    type: lesson
+    title: Try it on your own machine
+    body: |
+      A container is a process with an isolated view (**namespaces**) and limits (cgroups). Docker adds
+      images and tooling on top.
+
+      With Docker installed, this shows the idea in one line:
+
+      ```
+      docker run --rm alpine ps
+      ```
+
+      The `ps` command lists itself as PID 1, because that is the only process in the container.
+
+      Next lab: write the recipe for an image, a Dockerfile.

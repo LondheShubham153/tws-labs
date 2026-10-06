@@ -34,8 +34,11 @@ function loadLab(labsDir, trackId, labId, problems) {
     if (s.type !== 'lesson' && s.type !== 'task') return bad(`step "${s.id}": type must be lesson or task`);
     if (typeof s.title !== 'string' || typeof s.body !== 'string') return bad(`step "${s.id}": title and body are required`);
     if (s.local_body !== undefined && typeof s.local_body !== 'string') return bad(`step "${s.id}": local_body must be text`);
+    if (s.success !== undefined && (typeof s.success !== 'string' || s.success.length > 100)) return bad(`step "${s.id}": success must be text of at most 100 characters`);
     const step = {
       id: s.id, type: s.type, title: s.title, body: s.body, bodyHtml: renderMarkdown(s.body), hint: s.hint || '',
+      // Optional confirmation shown in green when the task's check passes (default: "Correct. Step complete.").
+      success: s.success || '',
       // Optional wording for the laptop profile (e.g. "there is no cluster here"); same checks.
       localBodyHtml: s.local_body ? renderMarkdown(s.local_body) : null,
     };

@@ -1,0 +1,123 @@
+title: Jobs, matrix and secrets
+level: intermediate
+minutes: 18
+summary: Order jobs with needs, fan out with a matrix, and lock down permissions and secrets.
+links:
+  - title: Workflow syntax
+    url: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax
+resources:
+  - title: Running variations of jobs (matrix)
+    url: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/running-variations-of-jobs-in-a-workflow
+    desc: How combinations, include, exclude and fail-fast behave.
+  - title: Controlling permissions for GITHUB_TOKEN
+    url: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/controlling-permissions-for-github_token
+    desc: Least privilege for the token every workflow run receives.
+  - title: Security hardening for GitHub Actions
+    url: https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions
+    desc: Secrets, script injection and why pinning an action matters.
+steps:
+  - id: matrix-idea
+    type: lesson
+    title: One job, many combinations
+    body: |
+      A **matrix** runs the same job once for every combination of its variables:
+
+      ```yaml
+      strategy:
+        matrix:
+          node: [18, 20]
+          os: [ubuntu-latest, macos-latest]
+      ```
+
+      That is 2 x 2 = 4 jobs. Read a value with `${{ matrix.os }}`. `exclude` removes a combination, and `include`
+      adds one. By default `fail-fast` is on: one failure cancels the rest.
+
+      The project in `shop/` already has a `build` job in `.github/workflows/ci.yml`. You will extend that file.
+  - id: matrix
+    type: task
+    title: Add a matrix job
+    body: |
+      At the **end** of `shop/.github/workflows/ci.yml`, add a job `test` that runs on `${{ matrix.os }}`, with a matrix of
+      `node` (18, 20, 22) and `os` (ubuntu-latest, macos-latest).
+    hint: "Put runs-on: ${{ matrix.os }} and strategy: matrix: node: and os: as lists under test:. Add steps too if you like."
+    success: Correct. 3 node versions x 2 systems is a 6-job fan-out.
+  - id: exclude
+    type: task
+    title: Skip one combination
+    body: Node 18 on macOS is not worth testing. Add an `exclude` entry to the matrix that skips exactly that combination.
+    hint: "exclude sits inside matrix, next to node and os. It is a list of small maps, like - os: ... and node: ..."
+    success: Correct. exclude trims the grid without touching the lists.
+  - id: failfast
+    type: task
+    title: Let every job finish
+    body: One failing combination should not hide the results of the others. Turn off **fail-fast** for the `test` job.
+    hint: "fail-fast belongs under strategy, as a sibling of matrix (not inside it). The value is false."
+    success: Correct. All combinations now report, even when one fails.
+  - id: count
+    type: task
+    title: How many jobs run?
+    body: |
+      Work out how many jobs your `test` matrix creates now, and write just that number into `shop/jobs.txt`.
+    hint: "Multiply the list lengths, then subtract what exclude removes."
+    success: Correct. Counting matrix jobs before you push saves surprise CI bills.
+  - id: needs-idea
+    type: lesson
+    title: Jobs run in parallel
+    body: |
+      Jobs start at the same time by default, each on its own machine. They share nothing.
+
+      `needs` makes a job wait. It lists job ids that must finish **successfully** first:
+
+      ```yaml
+      deploy:
+        needs: [build, test]
+      ```
+
+      If a needed job fails, the waiting job is skipped. That is how a broken build never gets deployed.
+  - id: needs
+    type: task
+    title: Deploy only after build and test
+    body: |
+      Add a job `deploy` that runs on `ubuntu-latest`, `needs` both `build` and `test`, and has a step
+      `run: ./deploy.sh`. Add it at the end of the file.
+    hint: "needs takes a list of job ids: needs: [build, test]."
+    success: Correct. deploy now waits for build and test, and is skipped if either fails.
+  - id: safe-idea
+    type: lesson
+    title: Least privilege and secrets
+    body: |
+      Every run gets a `GITHUB_TOKEN`. Limit it with `permissions:`. Once you set any permission, all the others become
+      `none`.
+
+      Keep secrets in **Settings > Secrets** and pass them through `env`:
+
+      ```yaml
+      env:
+        API_TOKEN: ${{ secrets.API_TOKEN }}
+      ```
+
+      Never put `${{ secrets.X }}` inside a `run` line, and never print it. Logs mask secrets, but a script can still
+      leak one by transforming it.
+  - id: permissions
+    type: task
+    title: Give the token read-only access
+    body: "Add a workflow-level `permissions:` block (top of the file, outside `jobs`) that allows only `contents: read`."
+    hint: "permissions: is a top-level key, a sibling of name, on and jobs."
+    success: Correct. A compromised step can now read the repo but not change it.
+  - id: secret
+    type: task
+    title: Pass a secret the safe way
+    body: |
+      Give the `./deploy.sh` step an `env` entry `API_TOKEN` whose value is the secret `API_TOKEN`.
+      Do not print it anywhere.
+    hint: "env sits on the step itself, next to run. Its value is the ${{ secrets.API_TOKEN }} expression."
+    success: Correct. The secret reaches the script as an environment variable, not as text in the command.
+  - id: bugs
+    type: task
+    title: Fix the three problems
+    body: |
+      `shop/.github/workflows/broken.yml` has three problems from this lab: an overly broad token, an action
+      that follows a moving branch, and a secret placed in a `run` line. Fix all three in that file.
+      An action is safe when its version is a release tag or a full commit SHA, never a branch like `main`.
+    hint: "Replace permissions: write-all, pin acme/deploy to a version such as v2, and drop the secret from the run line."
+    success: Correct. Least privilege, a pinned action and no secret in the command line.

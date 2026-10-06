@@ -1,0 +1,5 @@
+. "$LAB_LIB"
+[ -f key.pem ] && [ -f cert.pem ] || fail "key.pem and cert.pem are not both there yet."
+openssl x509 -in cert.pem -noout -subject 2>/dev/null | grep -q 'app\.test' || fail "cert.pem is not a certificate for the name app.test."
+openssl x509 -in cert.pem -noout -text 2>/dev/null | grep -q 'DNS:app\.test' || fail "cert.pem has no subjectAltName for app.test - add the -addext part."
+openssl x509 -in cert.pem -noout -checkend 0 >/dev/null 2>&1 || fail "cert.pem has already expired."

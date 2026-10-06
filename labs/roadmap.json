@@ -71,7 +71,7 @@
         {
           "id": "docker",
           "title": "Docker",
-          "status": "next",
+          "status": "live",
           "relevance": 97,
           "also": [
             "cloud"
@@ -84,23 +84,26 @@
           "video": {
             "title": "Docker In One Shot",
             "url": "https://youtu.be/9bSbNNH4Nqw"
-          }
+          },
+          "track": "docker"
         },
         {
           "id": "github-actions",
           "title": "CI/CD with GitHub Actions",
-          "status": "next",
+          "status": "live",
           "relevance": 85,
           "subtopics": [
             "CI pipelines with SAST",
             "OIDC to AWS",
             "Matrix builds, self-hosted runners"
-          ]
+          ],
+          "track": "github-actions",
+          "short": "GitHub Actions"
         },
         {
           "id": "networking",
           "title": "Networking",
-          "status": "next",
+          "status": "live",
           "relevance": 85,
           "subtopics": [
             "OSI and TCP/IP, DNS, routing, CIDR",
@@ -110,7 +113,8 @@
           "video": {
             "title": "Computer Networking for DevOps",
             "url": "https://www.youtube.com/live/mNTs-shuFno"
-          }
+          },
+          "track": "networking"
         },
         {
           "id": "prometheus-grafana",

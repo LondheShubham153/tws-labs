@@ -51,14 +51,14 @@ test('home: a calm map - live topics link to labs, next topics are plain, later 
     assert.match(html, /<svg viewBox="0 0 560 428" role="img" aria-label="Three orbits/);
     assert.deepEqual([...html.matchAll(/<div class="col line-(\w+) reveal">/g)].map((m) => m[1]), ['devops', 'cloud', 'ai']);
     // live topics are links: one lab -> straight to it, several labs -> the track page
-    for (const href of ['/t/linux-fundamentals', '/lab/linux-fundamentals/shell-scripting-basics', '/t/git-basics', '/lab/aws/elastic-beanstalk-cluster-mode']) assert.ok(html.includes(`<a href="${href}"`), href);
+    for (const href of ['/t/linux-fundamentals', '/lab/linux-fundamentals/shell-scripting-basics', '/t/git-basics', '/t/docker', '/t/networking', '/t/github-actions', '/lab/aws/elastic-beanstalk-cluster-mode']) assert.ok(html.includes(`<a href="${href}"`), href);
     // next topics are not links; later topics are not on the home page at all
     const dim = [...html.matchAll(/<li data-status="(next|building)" class="dim">(.*?)<\/li>/g)];
-    assert.ok(dim.length >= 8 && dim.every((m) => !m[2].includes('<a ')));
+    assert.ok(dim.length >= 4 && dim.every((m) => !m[2].includes('<a ')));
     for (const hidden of ['Ansible', 'Jenkins', 'OpenTelemetry', 'Helm', 'AIOps']) assert.ok(!html.includes(hidden), `${hidden} stays on the roadmap page`);
     for (const col of html.split('<div class="col ').slice(1)) assert.ok((col.match(/<li data-status=/g) || []).length <= 6, 'each route keeps to six stations');
     assert.match(html, /6 more on the roadmap/);
-    assert.match(html, /&#8644; Cloud/, 'an interchange is hinted');
+    assert.match(html, /&#8644; DevOps/, "an interchange is hinted");
     assert.match(html, /href="\/lab\/linux-fundamentals\/navigating"|href="\/t\/linux-fundamentals"/, 'the main call to action launches the first lab');
     for (const os of ['windows', 'macos', 'linux']) assert.match(html, new RegExp(`role="tab" id="tab-${os}"`));
     assert.match(html, /start_local_labs\.sh/);
@@ -108,8 +108,8 @@ test('roadmap: every topic grouped by line, collapsed rows, filters, capstones, 
     // everything is on this page, including the "later" topics the home page leaves out
     for (const t of ['Linux', 'Shell scripting', 'Docker', 'Ansible', 'Jenkins', 'Prometheus and Grafana', 'Kubernetes', 'GitOps with ArgoCD', 'Building AI agents', 'AIOps', 'Local LLMs in containers']) assert.ok(html.includes(`<b>${t}</b>`), t);
     const statuses = (s) => (html.match(new RegExp(`<details class="topic" data-status="${s}"`, 'g')) || []).length;
-    assert.deepEqual([statuses('live'), statuses('next') > 0, statuses('later') > 0], [4, true, true]);
-    assert.equal((html.match(/<a class="open"/g) || []).length, 4, 'only live topics can be opened');
+    assert.deepEqual([statuses('live'), statuses('next') > 0, statuses('later') > 0], [7, true, true]);
+    assert.equal((html.match(/<a class="open"/g) || []).length, 7, 'only live topics can be opened');
     assert.match(html, /<button type="button" data-f="all" aria-pressed="true">All<\/button>/);
     assert.match(html, /class="caps"/);
     assert.match(html, /Adapted from the DevOps Roadmap 2026/);
@@ -126,7 +126,7 @@ test('videos: grouped by line, safe links, "Practice" only where a lab is online
     const v = (await get(app, '/videos')).body;
     for (const id of ['e01GGTKmtpc', '9Xl1ZTk3BQw', 'vA5TTz6BXhY', '9bSbNNH4Nqw', 'W04brGNgxN4']) assert.ok(v.includes(id), id);
     assert.match(v, /rel="noopener noreferrer"/);
-    assert.equal((v.match(/Practice &rarr;/g) || []).length, 3, 'Linux, Shell scripting and Git are online');
+    assert.equal((v.match(/Practice &rarr;/g) || []).length, 5, 'Linux, Shell scripting, Git, Docker and Networking have a video and labs');
     assert.match(v, /<span class="tag">next<\/span>/);
     const track = (await get(app, '/t/linux-fundamentals')).body;
     assert.match(track, /<p class="crumb"><a href="\/">Labs<\/a><i>\/<\/i><a href="\/roadmap#devops">DevOps<\/a><i>\/<\/i><span>Linux Fundamentals<\/span><\/p>/);
@@ -146,7 +146,7 @@ test('the lab page carries its line, a breadcrumb, the progress route with the r
     assert.match(html, /<span class="jrocket" aria-hidden="true"><svg class="rk /);
     const data = JSON.parse(html.match(/id="lab-data" type="application\/json">(.*?)<\/script>/s)[1]);
     assert.deepEqual(data.next, { href: '/lab/linux-fundamentals/files', title: 'Creating and managing files' });
-    const last = JSON.parse((await get(app, '/lab/aws/elastic-beanstalk-cluster-mode')).body.match(/id="lab-data" type="application\/json">(.*?)<\/script>/s)[1]);
+    const last = JSON.parse((await get(app, '/lab/github-actions/oidc-to-aws')).body.match(/id="lab-data" type="application\/json">(.*?)<\/script>/s)[1]);
     assert.equal(last.next, null, 'nothing follows the last lab');
     assert.match((await get(app, '/lab/aws/elastic-beanstalk-cluster-mode')).body, /class="lab-shell line-cloud"/);
   } finally { app.stop(); }

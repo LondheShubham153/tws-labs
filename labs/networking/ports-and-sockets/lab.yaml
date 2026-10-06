@@ -1,0 +1,106 @@
+title: Ports and sockets
+level: beginner
+minutes: 15
+summary: Start a listener, see it with ss, bind it two ways and learn what "refused" means.
+resources:
+  - title: ss(8) manual
+    url: https://man7.org/linux/man-pages/man8/ss.8.html
+    desc: Every option of the socket statistics tool you used here.
+  - title: "RFC 9293: TCP"
+    url: https://www.rfc-editor.org/rfc/rfc9293
+    desc: The standard for the protocol behind every port.
+  - title: curl manual
+    url: https://curl.se/docs/manpage.html
+    desc: What curl reports when a connection is refused or times out.
+steps:
+  - id: what-is-a-port
+    type: lesson
+    title: A port is a number a program waits on
+    body: |
+      An IP address finds a machine. A **port** (0 to 65535) finds the program on it.
+
+      A program that waits for connections is **listening**. The pair of address and port it waits on is called a **socket**. Only one program can listen on a given address and port.
+
+      The tool for looking at sockets is `ss`. `ss -tln` lists the **t**cp sockets that are **l**istening, with **n**umbers instead of names.
+
+      Your session has its own ports, because this machine is shared. They are in `port.txt`, `port2.txt` and `port3.txt`.
+  - id: listen
+    type: task
+    title: Start a listener
+    body: |
+      Start a listener on `127.0.0.1` and the port in `port.txt`. Send what it receives to `received.txt`, and put it in the background with `&` so you keep your prompt:
+
+      ```
+      nc -lk 127.0.0.1 $(cat port.txt) > received.txt &
+      ```
+
+      `-l` means listen. `-k` means keep listening after a client leaves.
+    hint: "Use the exact command above. The & at the end matters - without it your terminal waits for the server."
+    success: Correct. Your program is now listening - a socket exists in the kernel.
+  - id: see
+    type: task
+    title: Find your socket with ss
+    body: |
+      Run `ss -tln` and find your listener. The **Local Address:Port** column shows where it waits.
+
+      Write that column's value for your port (it looks like `127.0.0.1:20000`) to `addr.txt`.
+    hint: "Try: ss -tln | grep $(cat port.txt) - then copy the fourth column, or pipe it with awk '{print $4}' > addr.txt."
+    success: Correct. ss reads sockets straight from the kernel, so it shows the truth.
+  - id: connect
+    type: task
+    title: Talk to it
+    body: |
+      A listener is only useful if someone connects. Bash can open a connection by itself using the special path `/dev/tcp/HOST/PORT`:
+
+      ```
+      echo ping > /dev/tcp/127.0.0.1/$(cat port.txt)
+      ```
+
+      Send the word `ping` to your listener, then look inside `received.txt`.
+    hint: "No bash trick needed if you prefer: echo ping | nc 127.0.0.1 $(cat port.txt) does the same thing."
+    success: Correct. A TCP connection carries bytes in both directions; your listener wrote them to the file.
+  - id: bind
+    type: lesson
+    title: Which address do you listen on?
+    body: |
+      A listener also picks which address it accepts connections on - this is called **binding**.
+
+      - `127.0.0.1` is **loopback**: only programs on this same machine can reach it.
+      - `0.0.0.0` means every address the machine has: other machines can reach it too.
+
+      This is why "it works on my machine" happens. A server bound to `127.0.0.1` inside a container cannot be reached from outside the container. In `ss` the wildcard shows as `0.0.0.0:PORT`.
+  - id: wildcard
+    type: task
+    title: Listen on every address
+    body: |
+      Start a second listener, this time on `0.0.0.0`, using the port in `port2.txt`. Keep it in the background.
+
+      Then run `ss -tln` and compare the two **Local Address** values.
+    hint: "Like before, but with 0.0.0.0: nc -lk 0.0.0.0 $(cat port2.txt) > /dev/null &"
+    success: Correct. 0.0.0.0 in ss means every address, not just loopback.
+  - id: in-use
+    type: task
+    title: Break it on purpose
+    body: |
+      Only one program can listen on an address and port. Try to start a second server on your first port. `nc` is too relaxed to refuse, so use the test server that ships with OpenSSL, and save what it says in `error.txt`:
+
+      ```
+      openssl s_server -accept 127.0.0.1:$(cat port.txt) -www -nocert 2> error.txt
+      ```
+
+      Your first listener must keep running.
+    hint: "Run the command exactly. It should stop by itself with an error; cat error.txt shows it."
+    success: Correct. "Address already in use" means another program already owns that port.
+  - id: refused
+    type: task
+    title: Meet "connection refused"
+    body: |
+      Nobody listens on the port in `port3.txt`. Ask for it with `curl` in verbose mode and save the output in `refused.txt`:
+
+      ```
+      curl -v 127.0.0.1:$(cat port3.txt) 2> refused.txt
+      ```
+
+      **Refused** means the machine answered "nothing listens here". A **timeout** means no answer at all - often a firewall.
+    hint: "Run the command above, then cat refused.txt. Do not start anything on that port."
+    success: Correct. Refused means nothing is listening; a silent hang would point at a firewall instead.

@@ -1,0 +1,146 @@
+title: From a name to a web page
+level: intermediate
+minutes: 20
+summary: Follow one request from a name to an IP, a port, a Host header and a TLS handshake.
+resources:
+  - title: "RFC 9110: HTTP semantics"
+    url: https://www.rfc-editor.org/rfc/rfc9110
+    desc: What a request line, a Host header and a status code mean.
+  - title: "RFC 1035: Domain names"
+    url: https://www.rfc-editor.org/rfc/rfc1035
+    desc: The original DNS specification.
+  - title: curl manual
+    url: https://curl.se/docs/manpage.html
+    desc: --resolve, -H and -v, the three options this lab leans on.
+  - title: openssl s_client
+    url: https://docs.openssl.org/master/man1/openssl-s_client/
+    desc: The tool that shows you a TLS handshake.
+steps:
+  - id: the-journey
+    type: lesson
+    title: Four questions before a page appears
+    body: |
+      When you open `http://app.test/`, four things happen in order:
+
+      1. **Which IP?** A name is turned into an address. This is DNS, or the `/etc/hosts` file.
+      2. **Which port?** The client connects to a port on that IP. Web servers use 80, or 443 for HTTPS.
+      3. **Which site?** The client sends a **Host header**. One server can host many sites on one IP.
+      4. **Can I trust you?** For HTTPS, the server shows a certificate first.
+
+      This lab walks all four on one machine, with no internet.
+  - id: hosts-file
+    type: task
+    title: Ask the system for an address
+    body: |
+      The system looks names up with its name service. It reads `/etc/hosts` first. Try it:
+
+      ```
+      getent hosts localhost
+      ```
+
+      Write the IP address it prints (the first column) to `ip.txt`.
+    hint: "Try: getent hosts localhost | awk '{print $1}' > ip.txt"
+    success: Correct. A name is just a label - the system found its address in /etc/hosts.
+  - id: dig-differs
+    type: task
+    title: Ask DNS directly
+    body: |
+      `dig` talks only to a DNS server and never reads `/etc/hosts`. Ask the server on this machine, with a short wait:
+
+      ```
+      dig +short +time=1 +tries=1 localhost @127.0.0.1
+      ```
+
+      Nothing answers on port 53 here, so it fails. Both tools are right: they ask different places.
+    hint: "Run the command exactly. A communications error is the expected result."
+    success: Correct. getent consults /etc/hosts; dig only speaks DNS, so the two can disagree.
+  - id: serve
+    type: task
+    title: Start a two-site web server
+    body: |
+      Your home has `server.sh`, a small web server with two sites: `app.test` and `admin.test`. It picks the site from the Host header and listens on the port in `port.txt`.
+
+      Start it in the background:
+
+      ```
+      bash server.sh &
+      ```
+
+      Read it with `cat server.sh` if you are curious. It is short.
+    hint: "The & at the end keeps your terminal free."
+    success: Correct. One listener, one port - and it can still serve two sites.
+  - id: resolve
+    type: task
+    title: Reach a site by name
+    body: |
+      `app.test` is not a real name, so nothing resolves it. `curl --resolve` supplies the answer by hand: for this name and port, use this IP.
+
+      ```
+      curl --resolve app.test:$(cat port.txt):127.0.0.1 http://app.test:$(cat port.txt)/ > page.txt
+      ```
+
+      Run it and look inside `page.txt`.
+    hint: "Copy the command exactly. The part before the second colon-pair is name:port:address."
+    success: Correct. You played the part of DNS - curl connected to 127.0.0.1 but still asked for app.test.
+  - id: host-header
+    type: task
+    title: Same IP, different site
+    body: |
+      Now go to the same IP and port but ask for the other site. The `-H` option sets a header:
+
+      ```
+      curl -H 'Host: admin.test' http://127.0.0.1:$(cat port.txt)/ > admin.txt
+      ```
+
+      Compare `admin.txt` with `page.txt`. Then try the plain `curl http://127.0.0.1:$(cat port.txt)/` and see the 404.
+    hint: "Keep the single quotes around 'Host: admin.test'."
+    success: Correct. The Host header chose the site; the IP and port stayed the same.
+  - id: verbose
+    type: task
+    title: Read a request with curl -v
+    body: |
+      `curl -v` shows the whole exchange. Lines starting with `*` are curl's notes, `>` is what curl sent, `<` is what came back. Save it:
+
+      ```
+      curl -v --resolve app.test:$(cat port.txt):127.0.0.1 http://app.test:$(cat port.txt)/ 2> verbose.txt
+      ```
+
+      Find the `> Host:` line and the `< HTTP/1.1 200 OK` line.
+    hint: "The 2> sends curl's verbose lines (which go to stderr) into verbose.txt."
+    success: Correct. > is the request you sent, < is the answer you got - reading both is half of debugging.
+  - id: tls
+    type: lesson
+    title: A certificate proves a name
+    body: |
+      HTTPS is HTTP inside **TLS**. Before any request, the server sends a **certificate**: a signed statement "this key belongs to `app.test`".
+
+      A real certificate is signed by an authority your machine trusts. A **self-signed** certificate is signed by its own key, so nobody trusts it by default - fine for testing, never for production.
+
+      The client also sends the name it wants (SNI) before encryption starts, so one IP can hold many certificates.
+  - id: cert
+    type: task
+    title: Make a certificate
+    body: |
+      Create a self-signed certificate for `app.test`, valid one day:
+
+      ```
+      openssl req -x509 -newkey rsa:2048 -nodes -keyout key.pem -out cert.pem -days 1 -subj "/CN=app.test" -addext "subjectAltName=DNS:app.test"
+      ```
+
+      This writes the private key `key.pem` and the certificate `cert.pem`.
+    hint: "Copy the command exactly; it takes a second or two."
+    success: Correct. The certificate names app.test in its subject and in its subjectAltName.
+  - id: handshake
+    type: task
+    title: Watch a TLS handshake
+    body: |
+      Start a TLS server on the port in `port2.txt`, then connect to it and save what the client reports:
+
+      ```
+      openssl s_server -accept $(cat port2.txt) -cert cert.pem -key key.pem -www &
+      openssl s_client -connect 127.0.0.1:$(cat port2.txt) -servername app.test < /dev/null > handshake.txt 2>&1
+      ```
+
+      Open `handshake.txt` and find the certificate subject and the line that says it could not be verified.
+    hint: "Run the s_server line first (it ends with &), then the s_client line."
+    success: Correct. The handshake worked, but the client cannot verify a self-signed certificate.

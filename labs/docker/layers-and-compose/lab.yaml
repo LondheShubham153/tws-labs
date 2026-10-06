@@ -1,0 +1,81 @@
+title: Layers, multi-stage builds and Compose
+level: intermediate
+minutes: 20
+summary: Open an image, find a "deleted" secret still inside it, then fix it and wire up Compose.
+resources:
+  - title: Multi-stage builds
+    url: https://docs.docker.com/build/building/multi-stage/
+    desc: Keep build tools and secrets out of the final image.
+  - title: OCI image layer specification
+    url: https://github.com/opencontainers/image-spec/blob/main/layer.md
+    desc: How layers and whiteout files are defined.
+  - title: Volumes
+    url: https://docs.docker.com/engine/storage/volumes/
+    desc: Data that outlives a container.
+  - title: Networking in Compose
+    url: https://docs.docker.com/compose/how-tos/networking/
+    desc: How services find each other by name.
+steps:
+  - id: layers-are-tars
+    type: lesson
+    title: An image is a stack of tar files
+    body: |
+      An image is a list of **layers**, and each layer is just a tar file of the files that step changed.
+      The image's manifest lists them in order.
+
+      A later layer cannot erase an earlier one. To "delete" a file it adds a marker, a **whiteout**, that
+      hides the file in the final view. The original bytes stay in the earlier layer.
+
+      In `~/image` there is a tiny image, laid out the way the OCI format stores it. Docker is not installed
+      here, so you will read it with `tar` and `jq`.
+  - id: count
+    type: task
+    title: Count the layers
+    body: |
+      `image/index.json` points to the manifest, a JSON file in `image/blobs/sha256/`. The manifest has a
+      `layers` list. Save how many layers the image has in `layers.txt`.
+    hint: "Read the digest in index.json, open that file in blobs/sha256, then try: jq '.layers | length'"
+    success: Correct. Every Dockerfile instruction that changes files becomes one layer.
+  - id: secret
+    type: task
+    title: Find the "deleted" secret
+    body: |
+      One layer adds a file named `.env` that holds a secret. A later layer deletes it. Find the line that
+      starts with `DEMO_API_KEY` and save it in `found.txt`.
+    hint: "List each layer with tar -tf, then print the file with tar -xOf <layer> app/.env"
+    success: Correct. Deleting a file in a later layer never removes it from the earlier layer.
+  - id: multistage
+    type: task
+    title: Fix it with a multi-stage build
+    body: |
+      Write `~/Dockerfile` with two stages. A build stage (`FROM ... AS build`) can copy and use anything.
+      The final stage must start a new `FROM` and take files only with `COPY --from=build`, never from
+      your own folder.
+    hint: "Try: FROM node:22-alpine AS build ... then a second FROM ... and COPY --from=build /app/server.js ."
+    success: Correct. Only what you copy from the build stage reaches the final image.
+  - id: compose-intro
+    type: lesson
+    title: Compose describes several containers
+    body: |
+      **Compose** describes a whole app (web, database, ...) in one `compose.yaml`. Two ideas matter here.
+
+      A **named volume** keeps data after a container is removed. Containers on a user-defined network can
+      reach each other by service name; on Docker's default bridge network they cannot.
+
+      You will write the file in two steps. Docker is not installed here, so the checks parse the YAML.
+  - id: volume
+    type: task
+    title: Give the database a named volume
+    body: |
+      Create `~/compose.yaml` with two services, `web` and `db`. Declare a named volume at the top level
+      and mount it into `db` as `name:/path`.
+    hint: "Try a top-level volumes: dbdata: and, under db, volumes: - dbdata:/var/lib/postgresql/data"
+    success: Correct. The dbdata volume lives outside the container, so the data survives its removal.
+  - id: network
+    type: task
+    title: Put both services on one network
+    body: |
+      Declare a top-level network, then list it under both `web` and `db`. Now `web` can reach the database
+      at the host name `db`.
+    hint: "Add a top-level networks: backend: and under each service networks: - backend"
+    success: Correct. On a user-defined network, a service name works as a host name.

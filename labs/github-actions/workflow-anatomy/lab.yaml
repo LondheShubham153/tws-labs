@@ -1,0 +1,110 @@
+title: Your first workflow
+level: beginner
+minutes: 12
+summary: Write a GitHub Actions workflow file - trigger, job and steps - and see it graded.
+links:
+  - title: Workflow syntax
+    url: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax
+resources:
+  - title: Understanding GitHub Actions
+    url: https://docs.github.com/en/actions/get-started/understand-github-actions
+    desc: The vocabulary - workflows, events, jobs, steps, actions and runners - in one page.
+  - title: Workflow syntax for GitHub Actions
+    url: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax
+    desc: Every key you can put in a workflow file, with examples.
+  - title: Events that trigger workflows
+    url: https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows
+    desc: The full list of triggers and their filters.
+steps:
+  - id: what-is-a-workflow
+    type: lesson
+    title: A workflow is a YAML file
+    body: |
+      A **workflow** is a YAML file in `.github/workflows/` that GitHub runs when something happens in your repo:
+      a push, a pull request, a timer.
+
+      It has three parts: a `name`, an `on` (when to run) and `jobs` (what to run).
+
+      There is no GitHub runner in this terminal. You will write real workflow files and this lab grades them.
+      To run one for real, push the repo to GitHub and open its **Actions** tab.
+
+      A small project is waiting in `shop/`. Its workflow folder is empty.
+  - id: name
+    type: task
+    title: Create the workflow file
+    body: |
+      Create `shop/.github/workflows/ci.yml` and give the workflow a name:
+
+      ```yaml
+      name: CI
+      ```
+    hint: "Try: nano shop/.github/workflows/ci.yml - YAML uses spaces, never tabs."
+    success: Correct. A workflow starts as a named YAML file in .github/workflows/.
+  - id: events
+    type: lesson
+    title: "on: decides when it runs"
+    body: |
+      `on` lists the **events** that start the workflow: `push`, `pull_request`, or `workflow_dispatch` (a manual button).
+
+      Add a `branches` filter to react to some branches only:
+
+      ```yaml
+      on:
+        push:
+          branches: [main]
+      ```
+
+      Gotcha: YAML 1.1 parsers read a bare `on` as the boolean `true`. GitHub understands it, but if another tool
+      complains, quote the key as `"on"`.
+  - id: trigger
+    type: task
+    title: Run only on pushes to main
+    body: Add a trigger so the workflow runs when someone pushes to the `main` branch, and not for other branches.
+    hint: "Think of it as three levels: on, then push, then branches with a list that contains main."
+    success: Correct. Pushes to any other branch will not start this workflow.
+  - id: jobs
+    type: lesson
+    title: Jobs and steps
+    body: |
+      A workflow has one or more **jobs**. Each job gets a fresh machine (`runs-on`) and runs its `steps` in order.
+
+      A step either `uses` a ready-made action (`actions/checkout` downloads your code) or `run`s a shell command:
+
+      ```yaml
+      jobs:
+        build:
+          runs-on: ubuntu-latest
+          steps:
+            - uses: actions/checkout@v4
+            - run: npm test
+      ```
+  - id: job
+    type: task
+    title: Add a build job
+    body: Add a job named `build` that runs on `ubuntu-latest`.
+    hint: "Under jobs:, add build:, and inside it runs-on: ubuntu-latest (indent with two spaces per level)."
+    success: Correct. Every job names the kind of machine it runs on.
+  - id: checkout
+    type: task
+    title: Check out the code first
+    body: |
+      A fresh machine starts empty. Give the `build` job a `steps` list whose **first** step checks out your code with
+      `actions/checkout`.
+    hint: "Each step starts with a dash. Use uses: actions/checkout@v4 (or a newer version)."
+    success: Correct. Without a checkout step the job would have no code to work on.
+  - id: test
+    type: task
+    title: Run the tests
+    body: Add a step after the checkout that runs your tests with `npm test`.
+    hint: "A shell step is a dash followed by run: and the command."
+    success: Correct. Your tests now run on every push to main.
+  - id: try-it
+    type: lesson
+    title: Try it for real
+    body: |
+      Your workflow is complete. To watch it run, push `shop/` to a repository of your own on GitHub and open the
+      **Actions** tab: every `run` line appears in the job log.
+
+      The file must live in `.github/workflows/` at the repo root. Anywhere else, nothing runs.
+
+      Next lab: several jobs, a build matrix, and keeping secrets safe.

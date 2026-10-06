@@ -15,6 +15,7 @@ RUN npm ci --omit=dev --no-audit --no-fund
 FROM node:22-bookworm-slim
 RUN apt-get update && apt-get install -y --no-install-recommends \
       bash coreutils procps git nano vim-tiny tree curl less file ca-certificates tini gosu \
+      jq dnsutils iproute2 netcat-openbsd openssl \
  && rm -rf /var/lib/apt/lists/* \
  # One user per concurrent session (lab0..lab15, uid 10000+): learners cannot read,
  # signal or starve each other. Names (not bare numbers) so `ls -l` stays readable.
