@@ -34,8 +34,8 @@ To see what you are running, check `version` in `package.json`. Self-hosters: `g
 
 ### Upgrade notes
 - **Local:** rebuild the image once (`./start_local_labs.sh` does it for you). No settings changed.
-- **Hosted:** the image changed, so the next push to `main` redeploys it through `deploy.yml`. No Terraform changes. The new labs have not
-  been run on the hosted profile yet (see `deploy/CHECKLIST.md`); in particular `node` may not start under the hosted memory cap, so these labs use `bash` and `nc`.
+- **Hosted:** the image changed, so the next push to `main` redeploys it through `deploy.yml`. No Terraform changes. The new labs were run end to end on the hosted
+  profile after deploy (see `deploy/CHECKLIST.md`). The Networking labs use `bash`, `nc` and `openssl` servers rather than `node`, because learner shells run under the hosted address-space cap.
 
 ## [1.0.0] - 2026-10-01
 

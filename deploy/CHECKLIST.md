@@ -18,8 +18,8 @@ Last full verification: the restructure to one engine + one catalog (see git log
 - [x] (live) the same flow through the real ALB + WebSocket — `deploy/smoke-test.py`, 20/20 on the rebuilt environment (2026-10-01)
 
 - [x] A passing Check shows a green "Correct" line (optional per-step `success:` text); a failing one still shows the amber hint (`public/lab.js`, `public/lab.css`)
-- [x] The nine Docker, Networking and GitHub Actions labs: every task failed before and passed after its solution through a real pty in the image (local profile). Not yet run on the hosted profile
-- [ ] (live) the new labs on the hosted Cluster Mode deployment: the runtime image gained `jq`, `dnsutils`, `iproute2`, `netcat-openbsd` and `openssl`, and `node` cannot start under the hosted 256 MiB address-space cap, so these labs use bash and `nc` servers; confirm on the live environment
+- [x] The nine Docker, Networking and GitHub Actions labs: every task failed before and passed after its solution through a real pty in the image (local profile)
+- [x] (live) the new labs on the hosted Cluster Mode deployment (2026-10-06, after PR #21): all 52 tasks of the nine new labs, plus the 4 of Linux in Action, passed through a real pty over wss with the invite gate on. The runtime image gained `jq`, `dnsutils`, `iproute2`, `netcat-openbsd` and `openssl`; the Networking labs use bash, `nc` and `openssl` servers, not `node`, because learner shells run under the hosted address-space cap
 
 ## Invite gate (hosted profile)
 - [x] Every hosted lab: 401 without a code or with a wrong one, 200 with any configured code; the local app never asks; no codes configured = closed (`http.test.js`)
