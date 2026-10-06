@@ -8,15 +8,10 @@ To see what you are running, check `version` in `package.json`. Self-hosters: `g
 
 ## [Unreleased]
 
-### Added
-- A new README: demo GIF, badges, a "Start here" table by goal, and a route table. `npm run readme:stats` regenerates the lab and task counts
-  and the route table from the real catalog; a unit test fails if the README is stale.
-- A 1280x640 social preview image (`docs/media/social-preview.png`).
-
 ## [1.1.0] - 2026-10-06
 
 ### Highlights
-- **Nine new labs on three new topics.** Docker, Networking and CI/CD with GitHub Actions are now live (18 labs in 6 tracks).
+- **Nine new labs on three new topics.** Docker, Networking and CI/CD with GitHub Actions are now live (19 labs in 6 tracks).
 - **A passing Check now says so.** You get a short green confirmation, and failing checks keep the amber hint.
 
 ### Added
@@ -27,6 +22,9 @@ To see what you are running, check `version` in `package.json`. Self-hosters: `g
 - **CI/CD with GitHub Actions** (3 labs): workflow anatomy, jobs, matrix and secrets, and OIDC to AWS.
 - Optional `success:` text on a lab step, shown in green when its check passes (see `docs/authoring.md`).
 - Check-script helpers in `labs/lib.sh`: `listening`, `http_code` and `yaml_get`.
+- A new README: demo GIF, badges, a "Start here" table by goal, and a route table. `npm run readme:stats` regenerates the lab and task counts
+  and the route table from the real catalog; a unit test fails if the README is stale.
+- A 1280x640 social preview image (`docs/media/social-preview.png`).
 
 ### Changed
 - The image now includes `jq`, `dig` (dnsutils), `ss` (iproute2), `nc` (netcat-openbsd) and `openssl`.
