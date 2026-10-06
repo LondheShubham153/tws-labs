@@ -13,9 +13,14 @@ RUN npm ci --omit=dev --no-audit --no-fund
 # real Ubuntu/Debian server. tini reaps orphaned lab processes (PID 1 duty); gosu
 # drops each learner's shell to its own unprivileged user.
 FROM node:22-bookworm-slim
-RUN apt-get update && apt-get install -y --no-install-recommends \
-      bash coreutils procps git nano vim-tiny tree curl less file ca-certificates tini gosu \
-      jq dnsutils iproute2 netcat-openbsd openssl \
+# The slim base image strips manual pages at install time; lift that so `man ls` works for learners, then reinstall the
+# base packages whose pages were already dropped (a reinstall puts them back).
+RUN sed -i '\|path-exclude /usr/share/man/\*|d' /etc/dpkg/dpkg.cfg.d/docker \
+ && apt-get update && apt-get install -y --no-install-recommends \
+      bash coreutils procps git nano vim tree curl less file ca-certificates tini gosu \
+      jq dnsutils iproute2 netcat-openbsd openssl man-db manpages \
+ && apt-get install -y --no-install-recommends --reinstall \
+      coreutils bash grep sed findutils gzip tar util-linux diffutils \
  && rm -rf /var/lib/apt/lists/* \
  # One user per concurrent session (lab0..lab15, uid 10000+): learners cannot read,
  # signal or starve each other. Names (not bare numbers) so `ls -l` stays readable.

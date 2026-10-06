@@ -8,6 +8,13 @@ To see what you are running, check `version` in `package.json`. Self-hosters: `g
 
 ## [Unreleased]
 
+### Changed
+- The learner shell now has full `vim` (syntax highlighting; `vi` opens it) and working `man` with the standard manual pages (`man ls`, `man 5 hosts`, `man 7 signal`).
+  The image grows by about 80 MB uncompressed, mostly the `vim` runtime files (36 MB) and the manual pages.
+
+### Upgrade notes
+- The runtime image changed, so the next push to `main` redeploys it through `deploy.yml`. No Terraform or settings changes.
+
 ## [1.1.0] - 2026-10-06
 
 ### Highlights
