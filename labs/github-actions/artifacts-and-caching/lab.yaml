@@ -1,0 +1,127 @@
+title: Artifacts and caching
+level: intermediate
+minutes: 15
+summary: Speed up builds with caching, store outputs as artifacts, and pass them between jobs.
+links:
+  - title: Storing workflow data as artifacts
+    url: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/storing-and-sharing-data-from-a-workflow
+resources:
+  - title: actions/upload-artifact
+    url: https://github.com/actions/upload-artifact
+    desc: Upload files generated during a workflow run for downstream jobs or download.
+  - title: actions/download-artifact
+    url: https://github.com/actions/download-artifact
+    desc: Download artifacts from previous jobs within the same workflow run.
+  - title: Caching dependencies to speed up workflows
+    url: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/caching-dependencies-to-speed-up-workflows
+    desc: How to cache dependencies across multiple workflow runs using actions/cache.
+steps:
+  - id: caching-intro
+    type: lesson
+    title: Cache dependencies across runs
+    body: |
+      Downloading and compiling dependencies on every commit wastes runner time.
+
+      **Caching** preserves files *across different workflow runs*. When a lockfile hasn't changed,
+      the runner restores dependencies in seconds instead of redownloading them.
+
+      `actions/cache@v4` takes:
+      - `path`: what directory to cache (e.g. `node_modules`).
+      - `key`: a unique key combining runner OS and a hash of the lockfile:
+        `${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}`
+
+      A project with an initial workflow is waiting in `shop/`.
+  - id: cache-deps
+    type: task
+    title: Cache node_modules
+    body: |
+      In `shop/.github/workflows/ci.yml`, add a caching step under the `build` job's `steps` (after `checkout`)
+      using `actions/cache@v4` that caches `node_modules` with key
+      `${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}`.
+      Then add two run steps: `npm run build` followed by `npm test`.
+    hint: "Add a step using uses: actions/cache@v4 with with: path: node_modules and key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}, followed by run: npm run build and run: npm test."
+    success: Correct. Dependency caching reuses modules across workflow runs.
+  - id: artifacts-intro
+    type: lesson
+    title: Runners do not share disk
+    body: |
+      Each job in a workflow runs on a **fresh, isolated virtual machine**.
+
+      When the `build` job generates compiled files in `dist/`, a subsequent `deploy` job starts
+      with an empty workspace and cannot see `dist/`.
+
+      To pass files between jobs in the *same* run, use **artifacts**:
+      - `actions/upload-artifact@v4` saves files to storage for this workflow run.
+      - `actions/download-artifact@v4` downloads them into subsequent jobs.
+  - id: upload-artifact
+    type: task
+    title: Save build outputs as an artifact
+    body: |
+      In `shop/.github/workflows/ci.yml`, add a step at the end of the `build` job that uploads
+      `dist` as an artifact named `dist-files` using `actions/upload-artifact@v4`.
+    hint: "Under build steps, add a step with uses: actions/upload-artifact@v4 and with: name: dist-files and path: dist."
+    success: Correct. Build artifacts are stored for downstream jobs.
+  - id: conditions-intro
+    type: lesson
+    title: "Always upload reports: if: always()"
+    body: |
+      By default, if any step in a job fails (such as `npm test`), GitHub Actions skips all subsequent steps in that job.
+
+      When generating test reports or debug logs, you want them uploaded even if tests failed.
+      Control step execution with `if:`:
+
+      ```yaml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-reports
+          path: test-results
+      ```
+
+      `always()` guarantees the step runs regardless of prior step failures.
+  - id: conditional-upload
+    type: task
+    title: Always upload test reports
+    body: |
+      In `shop/.github/workflows/ci.yml`, add a step to the `build` job that uploads `test-results`
+      as an artifact named `test-reports` using `actions/upload-artifact@v4`.
+
+      Add `if: always()` so the test reports upload even if tests fail.
+    hint: "Add a step with if: always(), uses: actions/upload-artifact@v4, and with: name: test-reports and path: test-results."
+    success: "Correct. if: always() guarantees test reports are captured on failure."
+  - id: downstream-intro
+    type: lesson
+    title: Downloading artifacts in downstream jobs
+    body: |
+      Jobs run in parallel unless ordered with `needs`.
+
+      Once `deploy` waits for `build` using `needs: [build]`, it can retrieve files uploaded earlier
+      using `actions/download-artifact@v4`:
+
+      ```yaml
+      deploy:
+        runs-on: ubuntu-latest
+        needs: [build]
+        steps:
+          - uses: actions/download-artifact@v4
+            with:
+              name: dist-files
+      ```
+  - id: download-artifact
+    type: task
+    title: Fetch the artifact in a deploy job
+    body: |
+      Add a new job named `deploy` to `shop/.github/workflows/ci.yml` that runs on `ubuntu-latest`,
+      depends on `build` with `needs: [build]`, and has a step downloading `dist-files` using
+      `actions/download-artifact@v4`.
+    hint: "Under jobs:, add deploy: with runs-on: ubuntu-latest, needs: [build], and a step with uses: actions/download-artifact@v4 and with: name: dist-files."
+    success: Correct. The deploy job now receives the artifact produced by the build job.
+  - id: wrap-up
+    type: lesson
+    title: Caching vs artifacts in production
+    body: |
+      Key rules for sharing data in GitHub Actions:
+
+      - **Cache** (`actions/cache`): Preserves reusable dependencies across different workflow runs.
+      - **Artifact** (`upload-artifact` / `download-artifact`): Passes build outputs between jobs in the same run or keeps them for download.
+      - **Conditions** (`if: always()`): Ensures diagnostic logs and test reports are preserved even when builds fail.

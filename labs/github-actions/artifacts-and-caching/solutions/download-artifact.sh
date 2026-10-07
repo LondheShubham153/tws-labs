@@ -1,0 +1,1 @@
+printf '  deploy:\n    runs-on: ubuntu-latest\n    needs: [build]\n    steps:\n      - uses: actions/download-artifact@v4\n        with:\n          name: dist-files\n' >> shop/.github/workflows/ci.yml

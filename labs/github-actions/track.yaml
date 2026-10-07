@@ -5,3 +5,4 @@ labs:
   - workflow-anatomy
   - jobs-matrix-secrets
   - oidc-to-aws
+  - artifacts-and-caching
