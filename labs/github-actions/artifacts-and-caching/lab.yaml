@@ -36,10 +36,10 @@ steps:
     title: Cache node_modules
     body: |
       In `shop/.github/workflows/ci.yml`, add a caching step under the `build` job's `steps` (after `checkout`)
-      using `actions/cache@v4` that caches `node_modules` with key
+      using `actions/cache@v6` that caches `node_modules` with key
       `${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}`.
       Then add two run steps: `npm run build` followed by `npm test`.
-    hint: "Add a step using uses: actions/cache@v4 with with: path: node_modules and key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}, followed by run: npm run build and run: npm test."
+    hint: "Add a step using uses: actions/cache@v6 with with: path: node_modules and key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}, followed by run: npm run build and run: npm test."
     success: Correct. Dependency caching reuses modules across workflow runs.
   - id: artifacts-intro
     type: lesson
@@ -51,15 +51,15 @@ steps:
       with an empty workspace and cannot see `dist/`.
 
       To pass files between jobs in the *same* run, use **artifacts**:
-      - `actions/upload-artifact@v4` saves files to storage for this workflow run.
-      - `actions/download-artifact@v4` downloads them into subsequent jobs.
+      - `actions/upload-artifact@v7` saves files to storage for this workflow run.
+      - `actions/download-artifact@v8` downloads them into subsequent jobs.
   - id: upload-artifact
     type: task
     title: Save build outputs as an artifact
     body: |
       In `shop/.github/workflows/ci.yml`, add a step at the end of the `build` job that uploads
-      `dist` as an artifact named `dist-files` using `actions/upload-artifact@v4`.
-    hint: "Under build steps, add a step with uses: actions/upload-artifact@v4 and with: name: dist-files and path: dist."
+      `dist` as an artifact named `dist-files` using `actions/upload-artifact@v7`.
+    hint: "Under build steps, add a step with uses: actions/upload-artifact@v7 and with: name: dist-files and path: dist."
     success: Correct. Build artifacts are stored for downstream jobs.
   - id: conditions-intro
     type: lesson
@@ -71,7 +71,7 @@ steps:
       Control step execution with `if:`:
 
       ```yaml
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: test-reports
@@ -84,10 +84,10 @@ steps:
     title: Always upload test reports
     body: |
       In `shop/.github/workflows/ci.yml`, add a step to the `build` job that uploads `test-results`
-      as an artifact named `test-reports` using `actions/upload-artifact@v4`.
+      as an artifact named `test-reports` using `actions/upload-artifact@v7`.
 
       Add `if: always()` so the test reports upload even if tests fail.
-    hint: "Add a step with if: always(), uses: actions/upload-artifact@v4, and with: name: test-reports and path: test-results."
+    hint: "Add a step with if: always(), uses: actions/upload-artifact@v7, and with: name: test-reports and path: test-results."
     success: "Correct. if: always() guarantees test reports are captured on failure."
   - id: downstream-intro
     type: lesson
@@ -96,14 +96,14 @@ steps:
       Jobs run in parallel unless ordered with `needs`.
 
       Once `deploy` waits for `build` using `needs: [build]`, it can retrieve files uploaded earlier
-      using `actions/download-artifact@v4`:
+      using `actions/download-artifact@v8`:
 
       ```yaml
       deploy:
         runs-on: ubuntu-latest
         needs: [build]
         steps:
-          - uses: actions/download-artifact@v4
+          - uses: actions/download-artifact@v8
             with:
               name: dist-files
       ```
@@ -113,8 +113,8 @@ steps:
     body: |
       Add a new job named `deploy` to `shop/.github/workflows/ci.yml` that runs on `ubuntu-latest`,
       depends on `build` with `needs: [build]`, and has a step downloading `dist-files` using
-      `actions/download-artifact@v4`.
-    hint: "Under jobs:, add deploy: with runs-on: ubuntu-latest, needs: [build], and a step with uses: actions/download-artifact@v4 and with: name: dist-files."
+      `actions/download-artifact@v8`.
+    hint: "Under jobs:, add deploy: with runs-on: ubuntu-latest, needs: [build], and a step with uses: actions/download-artifact@v8 and with: name: dist-files."
     success: Correct. The deploy job now receives the artifact produced by the build job.
   - id: wrap-up
     type: lesson
