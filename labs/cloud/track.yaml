@@ -1,0 +1,5 @@
+id: cloud
+title: Cloud & FinOps
+description: Master cloud computing, resource management, and FinOps cost optimization.
+labs:
+  - aws-finops-audit
