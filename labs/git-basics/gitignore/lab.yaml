@@ -1,0 +1,63 @@
+title: Ignoring files with .gitignore
+level: beginner
+minutes: 10
+summary: Use .gitignore to keep temporary, generated, and environment-specific files out of Git.
+steps:
+  - id: intro
+    type: lesson
+    title: Why ignore files
+    body: |
+      Projects often produce files that should not be committed, such as environment files, logs, caches, and generated output:
+
+      - Environment files (`.env`)
+      - Runtime logs (`debug.log`, `*.log`)
+      - Cache folders and temporary data (`tmp/`)
+
+      A `.gitignore` file tells Git which **untracked** files and directories to ignore so they do not clutter `git status` or get staged by `git add`.
+
+      **Important:** `.gitignore` only applies to untracked files. If a file was already committed to Git, adding it to `.gitignore` does not stop Git from tracking it. (You will learn how to untrack such files later in this lab!)
+
+      A repository called `proj` is waiting in your home directory.
+  - id: create-rules
+    type: task
+    title: Create ignore rules
+    body: |
+      Move into `proj`. Create a `.gitignore` file with rules to ignore:
+
+      - All log files ending in `.log` (`*.log`)
+      - The environment file `.env`
+      - The `tmp/` directory and its contents
+    hint: "Move into proj and add *.log, .env, and tmp/ to .gitignore."
+  - id: verify-ignored
+    type: task
+    title: Verify ignored files
+    body: |
+      Inspect Git's status to confirm that `debug.log`, `.env`, and `tmp/cache.txt` are ignored. Run `git status` to see that they no longer appear under untracked files, or test them with `git check-ignore -v <file>`.
+    hint: "Run git status or git check-ignore to verify what Git sees."
+  - id: stage-safely
+    type: task
+    title: Stage project files safely
+    body: |
+      Stage the project files and your new `.gitignore` using `git add .`.
+      Because of your `.gitignore` rules, Git stages `app.js` and `.gitignore`, while keeping `debug.log`, `.env`, and `tmp/cache.txt` unstaged.
+    hint: "Run git add . inside proj to stage the project files."
+  - id: untrack-file
+    type: task
+    title: Untrack an already-tracked file
+    body: |
+      A local configuration file `config.local` was committed before `.gitignore` was created. Because Git was already tracking it, adding it to `.gitignore` alone will not stop Git from tracking changes to it.
+
+      To stop tracking it without deleting it from your disk, add `config.local` to `.gitignore` and remove it from the Git index with `git rm --cached config.local`.
+    hint: "Add config.local to .gitignore, then run: git rm --cached config.local"
+  - id: wrap-up
+    type: lesson
+    title: Clean history
+    body: |
+      You have learned how to:
+
+      - Use glob patterns like `*.log` and directory patterns like `tmp/`
+      - Ignore environment and secret files like `.env`
+      - Verify ignore behavior with `git check-ignore` and `git status`
+      - Untrack previously committed files using `git rm --cached`
+
+      Always commit `.gitignore` to your repository so your whole team shares the same rules.

@@ -5,6 +5,7 @@ labs:
   - first-commit
   - branches-and-merge
   - undoing
+  - gitignore
 video:
   title: Git & GitHub Crash Course 2025
   url: https://www.youtube.com/watch?v=vA5TTz6BXhY
