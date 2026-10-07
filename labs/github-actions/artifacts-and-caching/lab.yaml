@@ -25,7 +25,7 @@ steps:
       **Caching** preserves files *across different workflow runs*. When a lockfile hasn't changed,
       the runner restores dependencies in seconds instead of redownloading them.
 
-      `actions/cache@v4` takes:
+      `actions/cache@v6` takes:
       - `path`: what directory to cache (e.g. `node_modules`).
       - `key`: a unique key combining runner OS and a hash of the lockfile:
         `${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}`
