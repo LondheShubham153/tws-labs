@@ -1,0 +1,6 @@
+. "$LAB_LIB"
+in_repo proj check-ignore -q debug.log || fail "debug.log should be ignored by Git."
+in_repo proj check-ignore -q .env || fail ".env should be ignored by Git."
+in_repo proj check-ignore -q tmp/cache.txt || fail "Files under tmp/ should be ignored by Git."
+! in_repo proj check-ignore -q app.js || fail "app.js must not be ignored."
+ran_re '(^|[;&|(][[:space:]]*)git[[:space:]]+(status|check-ignore)' || fail "Run git status or git check-ignore to inspect what Git sees."
