@@ -1,0 +1,46 @@
+id: aws-finops-audit
+title: Comprehensive AWS Resource & FinOps Audit
+route: Cloud
+description: Practice auditing active resources and detecting cloud waste across Compute, Storage, Databases, Serverless, and Networking using AWS CLI commands.
+summary: Audit AWS services and identify idle resources across compute, storage, database, and networking.
+estimatedMinutes: 20
+level: intermediate
+
+steps:
+  - id: intro
+    type: lesson
+    title: Understanding AWS FinOps Audits
+    body: |
+      Cloud cost optimization begins with visibility. In this lab, you will use the AWS CLI to audit active resources across Compute, Storage, Databases, Serverless, and Networking to identify unattached or idle assets causing cloud waste.
+
+  - id: step-1
+    type: task
+    title: Audit Compute & Serverless (EC2, Lambda)
+    body: |
+      1. List all active EC2 instances and save their Instance IDs to `active_ec2.txt`.
+      2. List all deployed Lambda functions and save function names to `active_lambda.txt`.
+    hint: "Use `aws ec2 describe-instances` and `aws lambda list-functions`."
+
+  - id: step-2
+    type: task
+    title: Audit Storage Waste (EBS & S3 Buckets)
+    body: |
+      1. Find all unattached EBS volumes (state: `available`) and save their Volume IDs to `unattached_ebs.txt`.
+      2. List all S3 buckets and save their names to `s3_buckets.txt`.
+    hint: "Use `aws ec2 describe-volumes --filters Name=status,Values=available` and `aws s3api list-buckets`."
+
+  - id: step-3
+    type: task
+    title: Audit Databases & Cache (RDS & DynamoDB)
+    body: |
+      1. List all RDS database instances and save DB Identifiers to `rds_instances.txt`.
+      2. List all DynamoDB tables and save table names to `dynamodb_tables.txt`.
+    hint: "Use `aws rds describe-db-instances` and `aws dynamodb list-tables`."
+
+  - id: step-4
+    type: task
+    title: Audit Networking & Gateways (EIP & NAT)
+    body: |
+      1. Identify unassociated Elastic IPs (IPs not attached to an instance) and save Allocation IDs to `idle_eips.txt`.
+      2. List active NAT Gateways and save Gateway IDs to `nat_gateways.txt`.
+    hint: "Use `aws ec2 describe-addresses` and `aws ec2 describe-nat-gateways`."
